@@ -3,7 +3,7 @@ AI BYOK with markdown editing for prompts
 
 # Warning
 **All** of the content generated for HTML file and the rest of the markdown file is made entirely with the help of AI.
-If you do not support AI or AI generated product leave. 
+If you do not support AI or AI generated product leave
 
 # 🤖 AI Wrapper
 
