@@ -69,9 +69,4 @@ Inside the System Instructions settings, you can use the following dynamic templ
 - **[Highlight.js](https://highlightjs.org/):** Syntax highlighting for code blocks with copy/download utilities.
 - **[KaTeX](https://katex.org/):** Fast math typesetting for the web.
 
----
-
-## 📜 License
-
-This project is open-source and available under the [MIT License](LICENSE).
 
