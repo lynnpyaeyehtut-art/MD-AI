@@ -1,0 +1,198 @@
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+    border-radius: 9999px;
+}
+#userInput[contenteditable="true"]:empty:before,
+#systemPromptInput[contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    color: #94a3b8;
+    pointer-events: none;
+    display: block;
+}
+
+.markdown-body {
+    font-size: 0.925rem;
+    line-height: 1.6;
+}
+.markdown-body p {
+    margin-bottom: 0.5rem;
+}
+.markdown-body p:last-child {
+    margin-bottom: 0;
+}
+.markdown-body h1,
+#userInput h1,
+#systemPromptInput h1 {
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    margin: 0.6rem 0 0.3rem 0;
+    display: block;
+    border-bottom: 1px solid rgba(156, 163, 175, 0.2);
+}
+.markdown-body h2,
+#userInput h2,
+#systemPromptInput h2 {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    margin: 0.5rem 0 0.25rem 0;
+    display: block;
+    border-bottom: 1px solid rgba(156, 163, 175, 0.15);
+}
+.markdown-body h3,
+#userInput h3,
+#systemPromptInput h3 {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    margin: 0.4rem 0 0.2rem 0;
+    display: block;
+}
+.markdown-body h4,
+#userInput h4,
+#systemPromptInput h4 {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    margin: 0.35rem 0 0.15rem 0;
+    display: block;
+}
+
+/* Fix bullet points and ordered lists so Tailwind resets don't hide them */
+.markdown-body ul,
+#userInput ul,
+#systemPromptInput ul {
+    list-style-type: disc !important;
+    list-style-position: inside !important;
+    padding-left: 1.25rem !important;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.5rem !important;
+}
+.markdown-body ul ul,
+#userInput ul ul,
+#systemPromptInput ul ul {
+    list-style-type: circle !important;
+    padding-left: 1.25rem !important;
+}
+.markdown-body ul ul ul,
+#userInput ul ul ul,
+#systemPromptInput ul ul ul {
+    list-style-type: square !important;
+    padding-left: 1.25rem !important;
+}
+.markdown-body ol,
+#userInput ol,
+#systemPromptInput ol {
+    list-style-type: decimal !important;
+    list-style-position: inside !important;
+    padding-left: 1.25rem !important;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.5rem !important;
+}
+.markdown-body li,
+#userInput li,
+#systemPromptInput li {
+    display: list-item !important;
+    margin-bottom: 0.2rem;
+}
+
+.markdown-body code:not(pre code) {
+    background: rgba(110, 118, 129, 0.2);
+    padding: 0.15em 0.35em;
+    border-radius: 4px;
+    font-size: 85%;
+    font-family: monospace;
+}
+.markdown-body pre {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    margin: 0.5rem 0;
+    border: 1px solid rgba(156, 163, 175, 0.2);
+    background-color: #1e293b;
+    color: #f8fafc;
+    padding: 0.75rem;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+.markdown-body blockquote {
+    border-left: 3px solid #0284c7;
+    padding-left: 0.75rem;
+    opacity: 0.85;
+    margin-bottom: 0.5rem;
+}
+.markdown-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    border: 1px solid rgba(156, 163, 175, 0.4);
+}
+.markdown-body th,
+.markdown-body td {
+    border: 1px solid rgba(156, 163, 175, 0.3);
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+}
+.markdown-body th {
+    background: rgba(156, 163, 175, 0.2);
+    font-weight: 600;
+}
+.markdown-body a {
+    color: #0284c7;
+    text-decoration: underline;
+}
+
+.typing-cursor::after {
+    content: "▋";
+    animation: blink 1s infinite;
+    color: #0284c7;
+    margin-left: 2px;
+}
+@keyframes blink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+.katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0.5em 0;
+    padding: 0.5em 0;
+}
+
+/* Custom Styling for Reasoning Thought Blocks */
+details.reasoning-block {
+    background: rgba(15, 23, 42, 0.05);
+    border-left: 3px solid #6366f1;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.75rem;
+}
+.dark details.reasoning-block {
+    background: rgba(30, 41, 59, 0.5);
+}
+details.reasoning-block summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #6366f1;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+details.reasoning-block summary::-webkit-details-marker {
+    display: none;
+}
+details.reasoning-block[open] summary {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px dashed rgba(99, 102, 241, 0.3);
+    padding-bottom: 0.25rem;
+}
