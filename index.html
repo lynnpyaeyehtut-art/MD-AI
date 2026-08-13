@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>AI Wrapper</title>
 
+        <!-- Tailwind CSS -->
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
             tailwind.config = { darkMode: "class" };
@@ -28,158 +29,8 @@
         />
         <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 
-        <style>
-            ::-webkit-scrollbar {
-                width: 6px;
-                height: 6px;
-            }
-            ::-webkit-scrollbar-thumb {
-                background: rgba(156, 163, 175, 0.3);
-                border-radius: 9999px;
-            }
-            #userInput[contenteditable="true"]:empty:before,
-            #systemPromptInput[contenteditable="true"]:empty:before {
-                content: attr(placeholder);
-                color: #94a3b8;
-                pointer-events: none;
-                display: block;
-            }
-
-            .markdown-body {
-                font-size: 0.925rem;
-                line-height: 1.6;
-            }
-            .markdown-body p {
-                margin-bottom: 0.5rem;
-            }
-            .markdown-body p:last-child {
-                margin-bottom: 0;
-            }
-            .markdown-body h1,
-            #userInput h1,
-            #systemPromptInput h1 {
-                font-size: 1.5rem !important;
-                font-weight: 800 !important;
-                margin: 0.6rem 0 0.3rem 0;
-                display: block;
-                border-bottom: 1px solid rgba(156, 163, 175, 0.2);
-            }
-            .markdown-body h2,
-            #userInput h2,
-            #systemPromptInput h2 {
-                font-size: 1.25rem !important;
-                font-weight: 700 !important;
-                margin: 0.5rem 0 0.25rem 0;
-                display: block;
-                border-bottom: 1px solid rgba(156, 163, 175, 0.15);
-            }
-            .markdown-body h3,
-            #userInput h3,
-            #systemPromptInput h3 {
-                font-size: 1.1rem !important;
-                font-weight: 700 !important;
-                margin: 0.4rem 0 0.2rem 0;
-                display: block;
-            }
-            .markdown-body h4,
-            #userInput h4,
-            #systemPromptInput h4 {
-                font-size: 1rem !important;
-                font-weight: 600 !important;
-                margin: 0.35rem 0 0.15rem 0;
-                display: block;
-            }
-            .markdown-body ul,
-            #userInput ul,
-            #systemPromptInput ul {
-                list-style-type: disc !important;
-                padding-left: 1.25rem !important;
-                margin-bottom: 0.5rem;
-            }
-            .markdown-body ol,
-            #userInput ol,
-            #systemPromptInput ol {
-                list-style-type: decimal !important;
-                padding-left: 1.25rem !important;
-                margin-bottom: 0.5rem;
-            }
-            .markdown-body li,
-            #userInput li,
-            #systemPromptInput li {
-                margin-bottom: 0.2rem;
-                display: list-item !important;
-            }
-            .markdown-body code:not(pre code) {
-                background: rgba(110, 118, 129, 0.2);
-                padding: 0.15em 0.35em;
-                border-radius: 4px;
-                font-size: 85%;
-                font-family: monospace;
-            }
-            .markdown-body pre {
-                border-radius: 0.75rem;
-                overflow: hidden;
-                margin: 0.5rem 0;
-                border: 1px solid rgba(156, 163, 175, 0.2);
-                background-color: #1e293b;
-                color: #f8fafc;
-                padding: 0.75rem;
-                font-family: monospace;
-                white-space: pre-wrap;
-                word-break: break-all;
-            }
-            .markdown-body blockquote {
-                border-left: 3px solid #0284c7;
-                padding-left: 0.75rem;
-                opacity: 0.85;
-                margin-bottom: 0.5rem;
-            }
-            .markdown-body table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 0.5rem;
-                font-size: 0.85rem;
-                border: 1px solid rgba(156, 163, 175, 0.4);
-            }
-            .markdown-body th,
-            .markdown-body td {
-                border: 1px solid rgba(156, 163, 175, 0.3);
-                padding: 0.4rem 0.6rem;
-                text-align: left;
-            }
-            .markdown-body th {
-                background: rgba(156, 163, 175, 0.2);
-                font-weight: 600;
-            }
-            .markdown-body a {
-                color: #0284c7;
-                text-decoration: underline;
-            }
-
-            .typing-cursor::after {
-                content: "▋";
-                animation: blink 1s infinite;
-                color: #0284c7;
-                margin-left: 2px;
-            }
-            @keyframes blink {
-                0%,
-                100% {
-                    opacity: 1;
-                }
-                50% {
-                    opacity: 0;
-                }
-            }
-
-            /* Custom styling for KaTeX outputs */
-            .katex-display {
-                overflow-x: auto;
-                overflow-y: hidden;
-                margin: 0.5em 0;
-                padding: 0.5em 0;
-            }
-        </style>
+        <!-- Custom Styles -->
+        <link rel="stylesheet" href="style.css" />
     </head>
 
     <body
@@ -192,7 +43,6 @@
                 class="flex items-center justify-between gap-2 p-2.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm mb-3 flex-shrink-0 z-20"
             >
                 <div class="flex items-center gap-2 flex-1 min-w-0">
-                    <!-- Collapse/Expand Sidebar Toggle -->
                     <button
                         id="sidebarToggleBtn"
                         onclick="toggleSidebar()"
@@ -212,7 +62,6 @@
                         <i class="fa-solid fa-microchip text-base"></i>
                     </div>
 
-                    <!-- Dynamic Model Selector -->
                     <div class="relative flex-1 max-w-xs sm:max-w-sm">
                         <button
                             id="modelSelectBtn"
@@ -253,7 +102,6 @@
                                 </button>
                             </div>
 
-                            <!-- Model Search Input Field -->
                             <div
                                 class="px-1 py-1.5 mb-2 border-b border-slate-100 dark:border-slate-800"
                             >
@@ -294,7 +142,6 @@
             <div
                 class="relative flex-1 min-h-0 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-inner overflow-hidden flex flex-row"
             >
-                <!-- Collapsible Sidebar Segment -->
                 <aside
                     id="chatSidebar"
                     class="w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 flex flex-col h-full transition-all duration-200 z-30"
@@ -311,14 +158,12 @@
                         </button>
                     </div>
 
-                    <!-- Conversation Scroll List -->
                     <div
                         id="conversationsContainer"
                         class="flex-1 overflow-y-auto p-2 space-y-1"
                     ></div>
                 </aside>
 
-                <!-- Core Workframe (Chat Frame) -->
                 <div
                     class="flex-1 flex flex-col h-full relative overflow-hidden"
                 >
@@ -344,7 +189,24 @@
                     <footer
                         class="absolute bottom-0 left-0 right-0 p-2 sm:p-4 bg-gradient-to-t from-white via-white/95 to-transparent dark:from-slate-900 dark:via-slate-900/95 dark:to-transparent z-10 flex flex-col gap-2"
                     >
-                        <!-- Formatting Bar -->
+                        <!-- Branching Edit Banner Indicator -->
+                        <div
+                            id="editBranchBanner"
+                            class="hidden flex items-center justify-between px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-xs text-indigo-500 font-semibold"
+                        >
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-code-branch"></i>
+                                Editing message — creating a new branch
+                            </span>
+                            <button
+                                onclick="cancelEditingBranch()"
+                                class="text-slate-400 hover:text-slate-200 text-xs px-1"
+                                title="Cancel Edit"
+                            >
+                                <i class="fa-solid fa-xmark"></i> Cancel
+                            </button>
+                        </div>
+
                         <div
                             id="markdownBar"
                             class="flex items-center gap-1 overflow-x-auto p-1.5 bg-slate-100 dark:bg-slate-800/95 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 select-none"
@@ -352,168 +214,190 @@
                             <div class="flex items-center gap-0.5">
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyHeading('h1')"
+                                    onclick="MarkdownEditor.applyHeading('h1')"
                                     class="px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-extrabold transition"
                                     title="Heading 1 (H1)"
+                                    id="Bar-H1"
                                 >
                                     H1
                                 </button>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyHeading('h2')"
+                                    onclick="MarkdownEditor.applyHeading('h2')"
                                     class="px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-bold transition"
                                     title="Heading 2 (H2)"
+                                    id="Bar-H2"
                                 >
                                     H2
                                 </button>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyHeading('h3')"
+                                    onclick="MarkdownEditor.applyHeading('h3')"
                                     class="px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-semibold transition"
                                     title="Heading 3 (H3)"
+                                    id="Bar-H3"
                                 >
                                     H3
                                 </button>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyHeading('h4')"
+                                    onclick="MarkdownEditor.applyHeading('h4')"
                                     class="px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-medium transition"
                                     title="Heading 4 (H4)"
+                                    id="Bar-H4"
                                 >
                                     H4
                                 </button>
                             </div>
 
-                            <div
-                                class="h-4 w-[1px] bg-slate-300 dark:bg-slate-700 mx-0.5"
-                            ></div>
-
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('bold')"
+                                onclick="MarkdownEditor.applyWYSIWYG('bold')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 title="Bold"
+                                id="Bar-Bold"
                             >
                                 <i class="fa-solid fa-bold"></i>
                             </button>
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('italic')"
+                                onclick="MarkdownEditor.applyWYSIWYG('italic')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 title="Italic"
+                                id="Bar-Italic"
                             >
                                 <i class="fa-solid fa-italic"></i>
                             </button>
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('strike')"
+                                onclick="
+                                    MarkdownEditor.applyWYSIWYG('highlight')
+                                "
+                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition text-slate-800 dark:text-slate-100 hover:text-black dark:hover:text-white"
+                                title="Highlight Text"
+                                id="Bar-Hightlight Text"
+                            >
+                                <i class="fa-solid fa-highlighter"></i>
+                            </button>
+                            <button
+                                onmousedown="event.preventDefault()"
+                                onclick="MarkdownEditor.applyWYSIWYG('strike')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 title="Strikethrough"
+                                id="Bar-Strikethrough"
                             >
                                 <i class="fa-solid fa-strikethrough"></i>
                             </button>
 
-                            <div
-                                class="h-4 w-[1px] bg-slate-300 dark:bg-slate-700 mx-0.5"
-                            ></div>
-
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('ul')"
+                                onclick="MarkdownEditor.applyWYSIWYG('ul')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 title="Bullet List"
+                                id="Bar-Bullet List"
                             >
                                 <i class="fa-solid fa-list-ul"></i>
                             </button>
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('ol')"
+                                onclick="MarkdownEditor.applyWYSIWYG('ol')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 title="Numbered List"
+                                id="Bar-Numbered List"
                             >
                                 <i class="fa-solid fa-list-ol"></i>
                             </button>
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('sublist')"
+                                onclick="MarkdownEditor.applyWYSIWYG('sublist')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 title="Indent List Item"
+                                id="Bar-Indent List Item"
                             >
                                 <i class="fa-solid fa-indent"></i>
                             </button>
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('task')"
+                                onclick="MarkdownEditor.applyWYSIWYG('task')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 title="Checklist Item"
+                                id="Bar-Checklist Item"
                             >
                                 <i class="fa-regular fa-square-check"></i>
                             </button>
 
-                            <div
-                                class="h-4 w-[1px] bg-slate-300 dark:bg-slate-700 mx-0.5"
-                            ></div>
-
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('table')"
+                                onclick="MarkdownEditor.applyWYSIWYG('table')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 title="Insert Table"
+                                id="Bar-Insert Table"
                             >
                                 <i class="fa-solid fa-table"></i>
                             </button>
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('addRow')"
+                                onclick="MarkdownEditor.applyWYSIWYG('addRow')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5"
                                 title="Add Row"
+                                id="Bar-Add Row"
                             >
                                 <i class="fa-solid fa-plus text-[9px]"></i
                                 ><i class="fa-solid fa-grip-lines"></i>
                             </button>
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('addCol')"
+                                onclick="MarkdownEditor.applyWYSIWYG('addCol')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5"
                                 title="Add Column"
+                                id="Bar-Add Column"
                             >
                                 <i class="fa-solid fa-plus text-[9px]"></i
                                 ><i class="fa-solid fa-grip-lines-vertical"></i>
                             </button>
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('delRow')"
+                                onclick="MarkdownEditor.applyWYSIWYG('delRow')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5 text-red-500 hover:text-red-600"
                                 title="Delete Row"
+                                id="Bar-Delete Row"
                             >
                                 <i class="fa-solid fa-minus text-[9px]"></i
                                 ><i class="fa-solid fa-grip-lines"></i>
                             </button>
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('delCol')"
+                                onclick="MarkdownEditor.applyWYSIWYG('delCol')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5 text-red-500 hover:text-red-600"
                                 title="Delete Column"
+                                id="Bar-Delete Column"
                             >
                                 <i class="fa-solid fa-minus text-[9px]"></i
                                 ><i class="fa-solid fa-grip-lines-vertical"></i>
                             </button>
 
-                            <div
-                                class="h-4 w-[1px] bg-slate-300 dark:bg-slate-700 mx-0.5"
-                            ></div>
-
                             <button
                                 onmousedown="event.preventDefault()"
-                                onclick="applyWYSIWYG('code')"
+                                onclick="MarkdownEditor.applyWYSIWYG('code')"
                                 class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 title="Insert Code Block"
+                                id="Bar-Insert Code Block"
                             >
                                 <i class="fa-solid fa-code"></i>
                             </button>
+                            <button
+                                onmousedown="event.preventDefault()"
+                                onclick="
+                                    MarkdownEditor.applyWYSIWYG('inlineCode')
+                                "
+                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
+                                title="Inline Code"
+                                id="Bar-Inline Code"
+                            >
+                                <i class="fa-solid fa-terminal"></i>
+                            </button>
                         </div>
 
-                        <!-- Input Editor -->
                         <div
                             class="relative flex items-end gap-2 p-2 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl focus-within:ring-2 focus-within:ring-sky-500/50 transition"
                         >
@@ -521,7 +405,7 @@
                                 id="userInput"
                                 contenteditable="true"
                                 placeholder="Type a message..."
-                                onkeydown="handleKeyDown(event)"
+                                onkeydown="MarkdownEditor.handleKeyDown(event)"
                                 class="markdown-body flex-1 min-h-[40px] max-h-40 overflow-y-auto bg-transparent border-0 outline-none p-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 leading-relaxed rounded-xl"
                             ></div>
                             <button
@@ -534,7 +418,6 @@
                             </button>
                         </div>
 
-                        <!-- Active Parameters Bar -->
                         <div
                             id="activeParamsContainer"
                             class="flex flex-wrap items-center gap-2 pt-1 min-h-[28px]"
@@ -544,7 +427,6 @@
             </div>
         </div>
 
-        <!-- Settings Modal Window -->
         <div
             id="settingsModal"
             class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
@@ -552,7 +434,6 @@
             <div
                 class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden"
             >
-                <!-- Modal Header -->
                 <div
                     class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-slate-800"
                 >
@@ -570,11 +451,9 @@
                     </button>
                 </div>
 
-                <!-- Modal Body -->
                 <div
                     class="flex flex-col sm:flex-row flex-1 min-h-[380px] overflow-hidden"
                 >
-                    <!-- Navigation Sidebar -->
                     <div
                         class="w-full sm:w-48 bg-slate-50 dark:bg-slate-950/50 p-2 border-b sm:border-b-0 sm:border-r border-slate-200 dark:border-slate-800 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-x-visible flex-shrink-0"
                     >
@@ -636,7 +515,6 @@
                         </button>
                     </div>
 
-                    <!-- Content Panels -->
                     <div class="flex-1 p-5 overflow-y-auto space-y-4">
                         <div
                             id="tabContent-provider"
@@ -662,7 +540,6 @@
                             ></div>
                         </div>
 
-                        <!-- Markdown System Instructions Pane with dedicated toolbar -->
                         <div
                             id="tabContent-system"
                             class="settings-tab-panel hidden space-y-2 opacity-100 transition-opacity"
@@ -679,44 +556,44 @@
                                 >
                             </div>
 
-                            <!-- Dedicated formatting bar inside System prompt panel -->
                             <div
                                 class="flex items-center gap-1 overflow-x-auto p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 select-none"
                             >
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyHeading('h1')"
+                                    onclick="MarkdownEditor.applyHeading('h1')"
                                     class="px-1.5 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-[10px] font-extrabold transition"
                                 >
                                     H1
                                 </button>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyHeading('h2')"
+                                    onclick="MarkdownEditor.applyHeading('h2')"
                                     class="px-1.5 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-[10px] font-bold transition"
                                 >
                                     H2
                                 </button>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyHeading('h3')"
+                                    onclick="MarkdownEditor.applyHeading('h3')"
                                     class="px-1.5 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-[10px] font-semibold transition"
                                 >
                                     H3
                                 </button>
-                                <div
-                                    class="h-3 w-[1px] bg-slate-300 dark:bg-slate-700 mx-0.5"
-                                ></div>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyWYSIWYG('bold')"
+                                    onclick="
+                                        MarkdownEditor.applyWYSIWYG('bold')
+                                    "
                                     class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 >
                                     <i class="fa-solid fa-bold text-[10px]"></i>
                                 </button>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyWYSIWYG('italic')"
+                                    onclick="
+                                        MarkdownEditor.applyWYSIWYG('italic')
+                                    "
                                     class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 >
                                     <i
@@ -725,19 +602,18 @@
                                 </button>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyWYSIWYG('strike')"
+                                    onclick="
+                                        MarkdownEditor.applyWYSIWYG('strike')
+                                    "
                                     class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 >
                                     <i
                                         class="fa-solid fa-strikethrough text-[10px]"
                                     ></i>
                                 </button>
-                                <div
-                                    class="h-3 w-[1px] bg-slate-300 dark:bg-slate-700 mx-0.5"
-                                ></div>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyWYSIWYG('ul')"
+                                    onclick="MarkdownEditor.applyWYSIWYG('ul')"
                                     class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 >
                                     <i
@@ -746,7 +622,7 @@
                                 </button>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyWYSIWYG('ol')"
+                                    onclick="MarkdownEditor.applyWYSIWYG('ol')"
                                     class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 >
                                     <i
@@ -755,7 +631,9 @@
                                 </button>
                                 <button
                                     onmousedown="event.preventDefault()"
-                                    onclick="applyWYSIWYG('code')"
+                                    onclick="
+                                        MarkdownEditor.applyWYSIWYG('code')
+                                    "
                                     class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 >
                                     <i class="fa-solid fa-code text-[10px]"></i>
@@ -765,7 +643,6 @@
                             <div
                                 id="systemPromptInput"
                                 contenteditable="true"
-                                placeholder="You are a helpful AI assistant..."
                                 onkeydown="handleKeyDown(event)"
                                 class="markdown-body w-full p-3 min-h-[220px] max-h-60 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:border-sky-500 leading-relaxed text-xs text-slate-800 dark:text-slate-100"
                             ></div>
@@ -922,7 +799,6 @@
                             </div>
                         </div>
 
-                        <!-- MCP Tools Content Panel -->
                         <div
                             id="tabContent-mcp"
                             class="settings-tab-panel hidden space-y-4"
@@ -964,13 +840,11 @@
                                 </div>
                             </div>
 
-                            <!-- List of MCP Tools -->
                             <div
                                 id="mcpToolsList"
                                 class="space-y-2.5 max-h-48 overflow-y-auto pr-1"
                             ></div>
 
-                            <!-- Form to Add New MCP Tool -->
                             <div
                                 class="p-3 bg-slate-100 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2.5"
                             >
@@ -1129,7 +1003,6 @@
                     </div>
                 </div>
 
-                <!-- Modal Footer -->
                 <div
                     class="flex justify-end gap-2 px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
                 >
@@ -1148,2029 +1021,8 @@
                 </div>
             </div>
         </div>
-
-        <script>
-            // --- Crypto Helpers (AES-GCM Encryption for Auth API Keys) ---
-            const CryptoUtil = {
-                async getCryptoKey() {
-                    const secret = "AI_WRAPPER_SECURE_SALT_2026";
-                    const enc = new TextEncoder();
-                    const keyMaterial = await window.crypto.subtle.importKey(
-                        "raw",
-                        enc.encode(secret),
-                        { name: "PBKDF2" },
-                        false,
-                        ["deriveKey"],
-                    );
-                    return window.crypto.subtle.deriveKey(
-                        {
-                            name: "PBKDF2",
-                            salt: enc.encode("static_salt_ai_wrapper"),
-                            iterations: 100000,
-                            hash: "SHA-256",
-                        },
-                        keyMaterial,
-                        { name: "AES-GCM", length: 256 },
-                        false,
-                        ["encrypt", "decrypt"],
-                    );
-                },
-
-                async encrypt(plaintext) {
-                    if (!plaintext) return "";
-                    try {
-                        const key = await this.getCryptoKey();
-                        const iv = window.crypto.getRandomValues(
-                            new Uint8Array(12),
-                        );
-                        const encoded = new TextEncoder().encode(plaintext);
-                        const ciphertext = await window.crypto.subtle.encrypt(
-                            { name: "AES-GCM", iv },
-                            key,
-                            encoded,
-                        );
-                        const combined = new Uint8Array(
-                            iv.length + ciphertext.byteLength,
-                        );
-                        combined.set(iv, 0);
-                        combined.set(new Uint8Array(ciphertext), iv.length);
-                        return btoa(String.fromCharCode(...combined));
-                    } catch (e) {
-                        console.error("Encryption error:", e);
-                        return plaintext;
-                    }
-                },
-
-                async decrypt(cipherText) {
-                    if (!cipherText) return "";
-                    try {
-                        const raw = atob(cipherText);
-                        const combined = new Uint8Array(raw.length);
-                        for (let i = 0; i < raw.length; i++) {
-                            combined[i] = raw.charCodeAt(i);
-                        }
-                        const iv = combined.slice(0, 12);
-                        const data = combined.slice(12);
-                        const key = await this.getCryptoKey();
-                        const decrypted = await window.crypto.subtle.decrypt(
-                            { name: "AES-GCM", iv },
-                            key,
-                            data,
-                        );
-                        return new TextDecoder().decode(decrypted);
-                    } catch (e) {
-                        return cipherText;
-                    }
-                },
-            };
-
-            let state = {
-                providers: [],
-                currentProviderId:
-                    localStorage.getItem("ai_current_provider_id") ||
-                    "prov_default",
-                systemPrompt:
-                    localStorage.getItem("ai_system_prompt") ||
-                    "You are a helpful assistant.",
-                currentModel: localStorage.getItem("ai_model") || "gpt-4o-mini",
-                conversations: JSON.parse(
-                    localStorage.getItem("ai_conversations") || "[]",
-                ),
-                currentConvId: localStorage.getItem("ai_current_conv_id") || "",
-                providerModels: {},
-                customParams: JSON.parse(
-                    localStorage.getItem("ai_custom_params") || "[]",
-                ),
-                mcpTools: JSON.parse(
-                    localStorage.getItem("ai_mcp_tools") ||
-                        JSON.stringify([
-                            {
-                                id: "mcp_search",
-                                name: "Web Search MCP",
-                                type: "SSE",
-                                url: "https://mcp.search.example.com/sse",
-                                description:
-                                    "Enables real-time internet web search and page content retrieval",
-                                enabled: true,
-                            },
-                            {
-                                id: "mcp_fs",
-                                name: "Local Filesystem MCP",
-                                type: "Stdio",
-                                url: "npx -y @modelcontextprotocol/server-filesystem /path/to/dir",
-                                description:
-                                    "Provides local file reading, editing, and workspace search capabilities",
-                                enabled: false,
-                            },
-                        ]),
-                ),
-                sidebarOpen:
-                    localStorage.getItem("ai_sidebar_open") !== "false",
-            };
-
-            let currentAbortController = null;
-
-            function normalizeBaseUrl(url) {
-                if (!url) return "https://api.openai.com/v1";
-                return url.trim().replace(/\/+$/, "");
-            }
-
-            function escapeHtml(str) {
-                if (!str) return "";
-                return String(str)
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#039;");
-            }
-
-            // --- LaTeX-Aware Markdown Render Engine Utility ---
-            function parseMarkdownWithMath(text) {
-                if (!text) return "";
-                const mathBlocks = [];
-
-                // 1. Segment and hold multi-line LaTeX code blocks: $$equation$$ or \[equation\]
-                let processed = text.replace(
-                    /\$\$([\s\S]*?)\$\$/g,
-                    (match, math) => {
-                        const id = `%%DISPLAY_MATH_${mathBlocks.length}%%`;
-                        mathBlocks.push({ id, math, display: true });
-                        return id;
-                    },
-                );
-
-                processed = processed.replace(
-                    /\\\[([\s\S]*?)\\\]/g,
-                    (match, math) => {
-                        const id = `%%DISPLAY_MATH_${mathBlocks.length}%%`;
-                        mathBlocks.push({ id, math, display: true });
-                        return id;
-                    },
-                );
-
-                // 2. Segment and hold inline math formulas: $formula$ or \(formula\)
-                processed = processed.replace(
-                    /\$([^\s$](?:[^\$]*?[^\s$])?)\$/g,
-                    (match, math) => {
-                        const id = `%%INLINE_MATH_${mathBlocks.length}%%`;
-                        mathBlocks.push({ id, math, display: false });
-                        return id;
-                    },
-                );
-
-                processed = processed.replace(
-                    /\\\(([\s\S]*?)\\\)/g,
-                    (match, math) => {
-                        const id = `%%INLINE_MATH_${mathBlocks.length}%%`;
-                        mathBlocks.push({ id, math, display: false });
-                        return id;
-                    },
-                );
-
-                // 3. Convert Markdown syntax structure using compiler
-                let html = marked.parse(processed);
-
-                // 4. Resolve math blocks into dynamic formulas via KaTeX
-                mathBlocks.forEach((item) => {
-                    try {
-                        const rendered = katex.renderToString(item.math, {
-                            displayMode: item.display,
-                            throwOnError: false,
-                        });
-                        html = html.replace(new RegExp(item.id, "g"), rendered);
-                    } catch (e) {
-                        html = html.replace(
-                            new RegExp(item.id, "g"),
-                            `<span class="text-red-500">${escapeHtml(item.math)}</span>`,
-                        );
-                    }
-                });
-
-                return html;
-            }
-
-            function setGenerationState(isGenerating) {
-                const sendBtn = document.getElementById("sendBtn");
-                if (!sendBtn) return;
-
-                if (isGenerating) {
-                    sendBtn.disabled = false;
-                    sendBtn.innerHTML =
-                        '<i class="fa-solid fa-square text-xs"></i>';
-                    sendBtn.title = "Stop Generating";
-                    sendBtn.onclick = () => {
-                        if (currentAbortController) {
-                            currentAbortController.abort();
-                        }
-                    };
-                } else {
-                    sendBtn.disabled = false;
-                    sendBtn.innerHTML =
-                        '<i class="fa-solid fa-paper-plane text-xs"></i>';
-                    sendBtn.title = "Send Message";
-                    sendBtn.onclick = sendMessage;
-                }
-            }
-
-            function toggleKeyVisibility(btn) {
-                const input = btn.previousElementSibling;
-                if (!input) return;
-                const isPassword = input.type === "password";
-                input.type = isPassword ? "text" : "password";
-                btn.innerHTML = isPassword
-                    ? '<i class="fa-solid fa-eye-slash"></i>'
-                    : '<i class="fa-solid fa-eye"></i>';
-            }
-
-            async function loadProviders() {
-                const rawProviders = JSON.parse(
-                    localStorage.getItem("ai_providers_enc") || "null",
-                );
-                if (rawProviders && Array.isArray(rawProviders)) {
-                    state.providers = await Promise.all(
-                        rawProviders.map(async (p) => ({
-                            ...p,
-                            baseUrl: normalizeBaseUrl(p.baseUrl),
-                            apiKey: await CryptoUtil.decrypt(p.apiKey),
-                        })),
-                    );
-                } else {
-                    const legacyKey = localStorage.getItem("ai_api_key") || "";
-                    const legacyBaseUrl = normalizeBaseUrl(
-                        localStorage.getItem("ai_base_url") ||
-                            "https://api.openai.com/v1",
-                    );
-                    state.providers = [
-                        {
-                            id: "prov_default",
-                            name: "OpenAI",
-                            baseUrl: legacyBaseUrl,
-                            apiKey: legacyKey,
-                        },
-                    ];
-                }
-            }
-
-            async function saveProvidersToStorage() {
-                const encryptedProviders = await Promise.all(
-                    state.providers.map(async (p) => ({
-                        ...p,
-                        baseUrl: normalizeBaseUrl(p.baseUrl),
-                        apiKey: await CryptoUtil.encrypt(p.apiKey),
-                    })),
-                );
-                localStorage.setItem(
-                    "ai_providers_enc",
-                    JSON.stringify(encryptedProviders),
-                );
-            }
-
-            function getActiveProvider() {
-                const found = state.providers.find(
-                    (p) => p.id === state.currentProviderId,
-                );
-                return (
-                    found ||
-                    state.providers[0] || {
-                        id: "prov_default",
-                        name: "OpenAI",
-                        baseUrl: "https://api.openai.com/v1",
-                        apiKey: "",
-                    }
-                );
-            }
-
-            function updateModelButtonLabel() {
-                const labelEl = document.getElementById("currentModelLabel");
-                if (!labelEl) return;
-                const activeProv = getActiveProvider();
-                if (activeProv && state.currentModel) {
-                    labelEl.innerHTML = `<strong class="font-bold">${escapeHtml(activeProv.name)}</strong> <span class="font-normal opacity-90">${escapeHtml(state.currentModel)}</span>`;
-                } else {
-                    labelEl.innerText = "Select Model";
-                }
-            }
-
-            // --- Conversation List & Sync Functions ---
-            function saveConversationsState() {
-                localStorage.setItem(
-                    "ai_conversations",
-                    JSON.stringify(state.conversations),
-                );
-                localStorage.setItem("ai_current_conv_id", state.currentConvId);
-            }
-
-            function migrateLegacyMessages() {
-                const legacyMessages = JSON.parse(
-                    localStorage.getItem("ai_messages") || "[]",
-                );
-                if (legacyMessages.length > 0) {
-                    const legacyId = "legacy_" + Date.now();
-                    const migratedConv = {
-                        id: legacyId,
-                        title: "Restored Session",
-                        messages: legacyMessages,
-                        createdAt: Date.now(),
-                    };
-                    state.conversations.push(migratedConv);
-                    state.currentConvId = legacyId;
-                    saveConversationsState();
-                    localStorage.removeItem("ai_messages");
-                }
-            }
-
-            function createNewConversation(switchActive = true) {
-                const newId = "conv_" + Date.now();
-                const newConv = {
-                    id: newId,
-                    title: "Untitled Chat",
-                    messages: [],
-                    createdAt: Date.now(),
-                };
-                state.conversations.unshift(newConv);
-                saveConversationsState();
-
-                if (switchActive) {
-                    switchConversation(newId);
-                }
-                return newConv;
-            }
-
-            function switchConversation(id) {
-                if (currentAbortController) {
-                    currentAbortController.abort();
-                }
-                state.currentConvId = id;
-                saveConversationsState();
-                renderSidebarConversations();
-                renderChatHistory();
-            }
-
-            function deleteConversation(event, id) {
-                event.stopPropagation();
-                if (
-                    !confirm(
-                        "Are you sure you want to delete this conversation?",
-                    )
-                )
-                    return;
-
-                state.conversations = state.conversations.filter(
-                    (c) => c.id !== id,
-                );
-                if (state.currentConvId === id) {
-                    if (state.conversations.length > 0) {
-                        state.currentConvId = state.conversations[0].id;
-                    } else {
-                        state.currentConvId = "";
-                    }
-                }
-                saveConversationsState();
-
-                if (!state.currentConvId) {
-                    createNewConversation(true);
-                } else {
-                    switchConversation(state.currentConvId);
-                }
-            }
-
-            function renameConversation(event, id) {
-                event.stopPropagation();
-                const conv = state.conversations.find((c) => c.id === id);
-                if (!conv) return;
-
-                const newTitle = prompt(
-                    "Rename this conversation:",
-                    conv.title,
-                );
-                if (newTitle !== null && newTitle.trim() !== "") {
-                    conv.title = newTitle.trim();
-                    saveConversationsState();
-                    renderSidebarConversations();
-                }
-            }
-
-            function renderSidebarConversations() {
-                const container = document.getElementById(
-                    "conversationsContainer",
-                );
-                if (!container) return;
-                container.innerHTML = "";
-
-                state.conversations.forEach((c) => {
-                    const isActive = c.id === state.currentConvId;
-                    const item = document.createElement("div");
-                    item.className = `flex items-center justify-between gap-1.5 p-2 rounded-xl text-left text-xs transition relative group cursor-pointer ${
-                        isActive
-                            ? "bg-sky-500/15 text-sky-600 dark:text-sky-400 font-semibold border-l-4 border-sky-500"
-                            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                    }`;
-                    item.onclick = () => switchConversation(c.id);
-
-                    item.innerHTML = `
-                        <div class="flex items-center gap-2 truncate flex-1 pr-1.5">
-                            <i class="fa-regular fa-message text-[11px] opacity-70"></i>
-                            <span class="truncate" title="${escapeHtml(c.title)}">${escapeHtml(c.title)}</span>
-                        </div>
-                        <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
-                            <button
-                                onclick="renameConversation(event, '${c.id}')"
-                                class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 rounded"
-                                title="Rename"
-                            >
-                                <i class="fa-solid fa-pen text-[9px]"></i>
-                            </button>
-                            <button
-                                onclick="deleteConversation(event, '${c.id}')"
-                                class="p-1 hover:bg-red-500/20 text-red-400 hover:text-red-600 rounded"
-                                title="Delete"
-                            >
-                                <i class="fa-solid fa-trash-can text-[9px]"></i>
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(item);
-                });
-            }
-
-            function toggleSidebar() {
-                state.sidebarOpen = !state.sidebarOpen;
-                localStorage.setItem("ai_sidebar_open", state.sidebarOpen);
-                applySidebarState();
-            }
-
-            function applySidebarState() {
-                const sidebar = document.getElementById("chatSidebar");
-                const icon = document.getElementById("sidebarIcon");
-                if (!sidebar) return;
-
-                if (state.sidebarOpen) {
-                    sidebar.style.width = "";
-                    sidebar.classList.remove(
-                        "w-0",
-                        "opacity-0",
-                        "pointer-events-none",
-                        "invisible",
-                    );
-                    sidebar.classList.add("w-64");
-                    if (icon) {
-                        icon.className = "fa-solid fa-bars text-sm";
-                    }
-                } else {
-                    sidebar.style.width = "0px";
-                    sidebar.classList.remove("w-64");
-                    sidebar.classList.add(
-                        "w-0",
-                        "opacity-0",
-                        "pointer-events-none",
-                        "invisible",
-                    );
-                    if (icon) {
-                        icon.className = "fa-solid fa-bars text-sm opacity-60";
-                    }
-                }
-            }
-
-            // --- App Lifecycle Handlers ---
-            document.addEventListener("DOMContentLoaded", async () => {
-                marked.setOptions({ breaks: true, gfm: true });
-
-                await loadProviders();
-
-                // Migrate legacy messages context
-                migrateLegacyMessages();
-
-                // Ensure workspace context isn't empty
-                if (state.conversations.length === 0) {
-                    createNewConversation(false);
-                }
-                if (!state.currentConvId) {
-                    state.currentConvId = state.conversations[0].id;
-                }
-
-                // Render dynamic WYSIWYG system template initial state with math logic support
-                document.getElementById("systemPromptInput").innerHTML =
-                    parseMarkdownWithMath(
-                        state.systemPrompt || "You are a helpful assistant.",
-                    );
-
-                updateModelButtonLabel();
-
-                if (localStorage.getItem("theme") === "light") {
-                    document.documentElement.classList.remove("dark");
-                    document.getElementById("themeIcon").className =
-                        "fa-solid fa-sun text-sm";
-                    if (document.getElementById("themePreviewIcon")) {
-                        document.getElementById("themePreviewIcon").className =
-                            "fa-solid fa-sun text-sky-500 text-lg";
-                    }
-                }
-
-                applySidebarState();
-                renderSidebarConversations();
-                renderProvidersListInSettings();
-                renderChatHistory();
-                renderParamsManager();
-                renderActiveParamsBar();
-                renderMcpToolsList();
-
-                fetchModelsList(false);
-            });
-
-            function renderProvidersListInSettings() {
-                const container = document.getElementById("providersContainer");
-                if (!container) return;
-                container.innerHTML = "";
-
-                state.providers.forEach((p, idx) => {
-                    const card = document.createElement("div");
-                    card.className =
-                        "p-3 bg-slate-100 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2 relative provider-card";
-                    card.dataset.providerId = p.id;
-
-                    card.innerHTML = `
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                                <i class="fa-solid fa-server text-sky-500"></i> Provider #${idx + 1}
-                            </span>
-                            ${
-                                state.providers.length > 1
-                                    ? `<button onclick="removeProviderUI('${p.id}')" class="text-red-500 hover:text-red-600 p-1 text-xs" title="Remove Provider"><i class="fa-solid fa-trash-can"></i> Remove</button>`
-                                    : ""
-                            }
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-0.5">Provider Name</label>
-                                <input type="text" class="provider-name-input w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500" value="${escapeHtml(p.name)}" placeholder="e.g. OpenAI / Groq" />
-                            </div>
-                            <div class="sm:col-span-2">
-                                <label class="block text-[10px] text-slate-400 mb-0.5">Base URL</label>
-                                <input type="text" class="provider-url-input w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500" value="${escapeHtml(p.baseUrl)}" placeholder="https://api.openai.com/v1" />
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-400 mb-0.5">Auth ID / API Key (Encrypted)</label>
-                            <div class="relative flex items-center">
-                                <input type="password" class="provider-key-input w-full pl-2.5 pr-8 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500 font-mono" value="${escapeHtml(p.apiKey)}" placeholder="sk-..." />
-                                <button type="button" onclick="toggleKeyVisibility(this)" class="absolute right-2 text-slate-400 hover:text-slate-200 text-xs p-1">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
-            }
-
-            function addNewProviderUI() {
-                readProvidersFromUI();
-                const newId = "prov_" + Date.now();
-                state.providers.push({
-                    id: newId,
-                    name: `Provider ${state.providers.length + 1}`,
-                    baseUrl: "https://api.openai.com/v1",
-                    apiKey: "",
-                });
-                renderProvidersListInSettings();
-            }
-
-            function removeProviderUI(id) {
-                if (state.providers.length <= 1) return;
-                readProvidersFromUI();
-                state.providers = state.providers.filter((p) => p.id !== id);
-                if (state.currentProviderId === id) {
-                    state.currentProviderId = state.providers[0].id;
-                }
-                renderProvidersListInSettings();
-            }
-
-            function readProvidersFromUI() {
-                const cards = document.querySelectorAll(".provider-card");
-                const updatedList = [];
-                cards.forEach((card) => {
-                    const id = card.dataset.providerId;
-                    const name =
-                        card
-                            .querySelector(".provider-name-input")
-                            ?.value.trim() || "Provider";
-                    const baseUrl = normalizeBaseUrl(
-                        card.querySelector(".provider-url-input")?.value,
-                    );
-                    const apiKey =
-                        card
-                            .querySelector(".provider-key-input")
-                            ?.value.trim() || "";
-                    updatedList.push({ id, name, baseUrl, apiKey });
-                });
-                if (updatedList.length > 0) {
-                    state.providers = updatedList;
-                }
-            }
-
-            function switchSettingsTab(tabName) {
-                const tabs = [
-                    "provider",
-                    "system",
-                    "params",
-                    "mcp",
-                    "appearance",
-                    "reset",
-                ];
-                tabs.forEach((t) => {
-                    const btn = document.getElementById(`tabBtn-${t}`);
-                    const content = document.getElementById(`tabContent-${t}`);
-                    if (btn && content) {
-                        if (t === tabName) {
-                            btn.className =
-                                "settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition text-left bg-sky-500/10 text-sky-500 font-bold";
-                            content.classList.remove("hidden");
-                        } else {
-                            btn.className =
-                                "settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition text-left text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800";
-                            content.classList.add("hidden");
-                        }
-                    }
-                });
-            }
-
-            async function saveAllSettings() {
-                readProvidersFromUI();
-
-                if (
-                    !state.providers.some(
-                        (p) => p.id === state.currentProviderId,
-                    )
-                ) {
-                    state.currentProviderId =
-                        state.providers[0]?.id || "prov_default";
-                }
-
-                // Process WYSIWYG markup compiling on settings update
-                state.systemPrompt = getEditorMarkdown(
-                    document.getElementById("systemPromptInput"),
-                );
-
-                await saveProvidersToStorage();
-                localStorage.setItem(
-                    "ai_current_provider_id",
-                    state.currentProviderId,
-                );
-                localStorage.setItem("ai_system_prompt", state.systemPrompt);
-
-                updateModelButtonLabel();
-                toggleModal("settingsModal");
-                fetchModelsList(true);
-            }
-
-            function toggleModal(id) {
-                const modal = document.getElementById(id);
-                if (modal) {
-                    modal.classList.toggle("hidden");
-                    if (
-                        id === "settingsModal" &&
-                        !modal.classList.contains("hidden")
-                    ) {
-                        // Ensure WYSIWYG content loads as proper HTML with math formatting rules on open
-                        document.getElementById("systemPromptInput").innerHTML =
-                            parseMarkdownWithMath(
-                                state.systemPrompt ||
-                                    "You are a helpful assistant.",
-                            );
-                    }
-                }
-            }
-
-            // Expand dynamic model parameter drop selector lists
-            function toggleDropdown(id) {
-                const drop = document.getElementById(id);
-                if (drop) {
-                    drop.classList.toggle("hidden");
-                    if (
-                        !drop.classList.contains("hidden") &&
-                        id === "modelDropdown"
-                    ) {
-                        const searchInput =
-                            document.getElementById("modelSearchInput");
-                        if (searchInput) {
-                            searchInput.value = "";
-                            renderModelsDropdown();
-                            setTimeout(() => searchInput.focus(), 50);
-                        }
-                    }
-                }
-            }
-
-            // Global document listener to handle closing the dropdown on outside click
-            document.addEventListener("click", (e) => {
-                const drop = document.getElementById("modelDropdown");
-                const btn = document.getElementById("modelSelectBtn");
-                if (
-                    drop &&
-                    !drop.classList.contains("hidden") &&
-                    btn &&
-                    !btn.contains(e.target) &&
-                    !drop.contains(e.target)
-                ) {
-                    drop.classList.add("hidden");
-                }
-            });
-
-            function toggleTheme() {
-                const isDark =
-                    document.documentElement.classList.toggle("dark");
-                localStorage.setItem("theme", isDark ? "dark" : "light");
-                document.getElementById("themeIcon").className = isDark
-                    ? "fa-solid fa-moon text-sm"
-                    : "fa-solid fa-sun text-sm";
-                if (document.getElementById("themePreviewIcon")) {
-                    document.getElementById("themePreviewIcon").className =
-                        isDark
-                            ? "fa-solid fa-moon text-sky-500 text-lg"
-                            : "fa-solid fa-sun text-sky-500 text-lg";
-                }
-            }
-
-            function clearChatHistory() {
-                if (
-                    confirm(
-                        "Erase entire dashboard conversation memory? This resets all chats.",
-                    )
-                ) {
-                    state.conversations = [];
-                    state.currentConvId = "";
-                    saveConversationsState();
-                    createNewConversation(true);
-                    toggleModal("settingsModal");
-                }
-            }
-
-            // --- MCP Tools Management Functions ---
-            function saveMcpToolsState() {
-                localStorage.setItem(
-                    "ai_mcp_tools",
-                    JSON.stringify(state.mcpTools),
-                );
-                renderMcpToolsList();
-            }
-
-            function renderMcpToolsList() {
-                const list = document.getElementById("mcpToolsList");
-                if (!list) return;
-                list.innerHTML = "";
-
-                if (!state.mcpTools || state.mcpTools.length === 0) {
-                    list.innerHTML = `<p class="text-[11px] text-slate-400 italic">No MCP tools configured yet.</p>`;
-                    return;
-                }
-
-                state.mcpTools.forEach((tool) => {
-                    const row = document.createElement("div");
-                    row.className =
-                        "p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 flex flex-col gap-1.5";
-
-                    row.innerHTML = `
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2 truncate">
-                                <button onclick="toggleMcpToolEnabled('${tool.id}')" class="flex-shrink-0 transition" title="${tool.enabled ? "Disable Tool" : "Enable Tool"}">
-                                    <i class="fa-solid ${tool.enabled ? "fa-toggle-on text-emerald-500 text-base" : "fa-toggle-off text-slate-400 text-base"}"></i>
-                                </button>
-                                <span class="font-bold text-slate-800 dark:text-slate-100 truncate">${escapeHtml(tool.name)}</span>
-                                <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-sky-500/10 text-sky-500 uppercase">${escapeHtml(tool.type || "SSE")}</span>
-                            </div>
-                            <button onclick="removeMcpTool('${tool.id}')" class="text-red-500 hover:text-red-600 p-1 flex-shrink-0" title="Remove Tool">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </button>
-                        </div>
-                        ${tool.url ? `<div class="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate bg-slate-200/50 dark:bg-slate-900/50 px-2 py-0.5 rounded">${escapeHtml(tool.url)}</div>` : ""}
-                        ${tool.description ? `<div class="text-[10px] text-slate-500 dark:text-slate-400 leading-snug">${escapeHtml(tool.description)}</div>` : ""}
-                    `;
-                    list.appendChild(row);
-                });
-            }
-
-            function toggleMcpToolEnabled(id) {
-                const tool = state.mcpTools.find((t) => t.id === id);
-                if (tool) {
-                    tool.enabled = !tool.enabled;
-                    saveMcpToolsState();
-                }
-            }
-
-            function removeMcpTool(id) {
-                state.mcpTools = state.mcpTools.filter((t) => t.id !== id);
-                saveMcpToolsState();
-            }
-
-            function saveNewMcpTool() {
-                const name = document.getElementById("newMcpName").value.trim();
-                const type = document.getElementById("newMcpType").value;
-                const url = document.getElementById("newMcpUrl").value.trim();
-                const desc = document.getElementById("newMcpDesc").value.trim();
-
-                if (!name) return;
-
-                const newTool = {
-                    id: "mcp_" + Date.now(),
-                    name,
-                    type,
-                    url,
-                    description: desc,
-                    enabled: true,
-                };
-
-                state.mcpTools.push(newTool);
-
-                document.getElementById("newMcpName").value = "";
-                document.getElementById("newMcpUrl").value = "";
-                document.getElementById("newMcpDesc").value = "";
-
-                saveMcpToolsState();
-            }
-
-            function addMcpPreset(preset) {
-                if (preset === "search") {
-                    state.mcpTools.push({
-                        id: "mcp_" + Date.now(),
-                        name: "Web Search MCP",
-                        type: "SSE",
-                        url: "https://mcp.search.example.com/sse",
-                        description:
-                            "Enables live internet searching & web content scraping",
-                        enabled: true,
-                    });
-                } else if (preset === "filesystem") {
-                    state.mcpTools.push({
-                        id: "mcp_" + Date.now(),
-                        name: "Filesystem MCP",
-                        type: "Stdio",
-                        url: "npx -y @modelcontextprotocol/server-filesystem /workspace",
-                        description:
-                            "File reading, writing, and workspace directory management",
-                        enabled: true,
-                    });
-                } else if (preset === "github") {
-                    state.mcpTools.push({
-                        id: "mcp_" + Date.now(),
-                        name: "GitHub MCP",
-                        type: "HTTP",
-                        url: "https://api.github.com/mcp",
-                        description:
-                            "Repository browsing, issue tracking, and PR management",
-                        enabled: true,
-                    });
-                }
-                saveMcpToolsState();
-            }
-
-            function toggleParamTypeFields() {
-                const type = document.getElementById("newParamType").value;
-                document.getElementById("fieldSlider").className =
-                    type === "slider" ? "grid grid-cols-3 gap-2" : "hidden";
-                document.getElementById("fieldDropdown").className =
-                    type === "dropdown" ? "block" : "hidden";
-            }
-
-            function addPresetParam(presetName) {
-                if (presetName === "temperature") {
-                    state.customParams.push({
-                        id: "temp_" + Date.now(),
-                        name: "temperature",
-                        type: "slider",
-                        min: 0,
-                        max: 2,
-                        step: 0.1,
-                        value: 0.7,
-                        enabled: true,
-                    });
-                } else if (presetName === "reasoning_effort") {
-                    state.customParams.push({
-                        id: "reason_" + Date.now(),
-                        name: "reasoning_effort",
-                        type: "dropdown",
-                        options: ["max", "high", "medium", "low", "none"],
-                        value: "medium",
-                        enabled: true,
-                    });
-                } else if (presetName === "thinking") {
-                    state.customParams.push({
-                        id: "think_" + Date.now(),
-                        name: "thinking",
-                        type: "switch",
-                        value: true,
-                        enabled: true,
-                    });
-                }
-                saveCustomParamsState();
-            }
-
-            function saveNewParam() {
-                const name = document
-                    .getElementById("newParamName")
-                    .value.trim();
-                const type = document.getElementById("newParamType").value;
-                if (!name) return;
-
-                let param = {
-                    id: "p_" + Date.now(),
-                    name,
-                    type,
-                    enabled: true,
-                };
-                if (type === "slider") {
-                    param.min =
-                        parseFloat(document.getElementById("paramMin").value) ||
-                        0;
-                    param.max =
-                        parseFloat(document.getElementById("paramMax").value) ||
-                        1;
-                    param.step = 0.1;
-                    param.value =
-                        parseFloat(document.getElementById("paramVal").value) ||
-                        0.7;
-                } else if (type === "dropdown") {
-                    const opts = document
-                        .getElementById("paramOptions")
-                        .value.split(",")
-                        .map((s) => s.trim())
-                        .filter(Boolean);
-                    param.options = opts.length ? opts : ["default"];
-                    param.value = param.options[0];
-                } else if (type === "switch") {
-                    param.value = true;
-                }
-
-                state.customParams.push(param);
-                document.getElementById("newParamName").value = "";
-                saveCustomParamsState();
-            }
-
-            function removeParam(id) {
-                state.customParams = state.customParams.filter(
-                    (p) => p.id !== id,
-                );
-                saveCustomParamsState();
-            }
-
-            function toggleParamEnabled(id) {
-                const p = state.customParams.find((item) => item.id === id);
-                if (p) p.enabled = !p.enabled;
-                saveCustomParamsState();
-            }
-
-            function updateParamValue(id, value) {
-                const p = state.customParams.find((item) => item.id === id);
-                if (p) {
-                    p.value = p.type === "slider" ? parseFloat(value) : value;
-                    localStorage.setItem(
-                        "ai_custom_params",
-                        JSON.stringify(state.customParams),
-                    );
-                    const readout = document.getElementById(`valReadout_${id}`);
-                    if (readout) readout.innerText = p.value;
-                }
-            }
-
-            // Saves parameter states globally
-            function saveCustomParamsState() {
-                localStorage.setItem(
-                    "ai_custom_params",
-                    JSON.stringify(state.customParams),
-                );
-                renderParamsManager();
-                renderActiveParamsBar();
-            }
-
-            function renderParamsManager() {
-                const list = document.getElementById("paramsList");
-                if (!list) return;
-                list.innerHTML = "";
-
-                if (state.customParams.length === 0) {
-                    list.innerHTML = `<p class="text-[11px] text-slate-400 italic">No custom API parameters defined yet.</p>`;
-                    return;
-                }
-
-                state.customParams.forEach((p) => {
-                    const row = document.createElement("div");
-                    row.className =
-                        "flex items-center justify-between p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700";
-                    row.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" ${p.enabled ? "checked" : ""} onchange="toggleParamEnabled('${p.id}')" class="rounded text-sky-500" />
-                            <span class="font-bold font-mono text-sky-500">${p.name}</span>
-                            <span class="text-[10px] text-slate-400">(${p.type})</span>
-                        </div>
-                        <button onclick="removeParam('${p.id}')" class="text-red-500 hover:text-red-600 p-1" title="Delete Parameter"><i class="fa-solid fa-trash-can"></i></button>
-                    `;
-                    list.appendChild(row);
-                });
-            }
-
-            function renderActiveParamsBar() {
-                const container = document.getElementById(
-                    "activeParamsContainer",
-                );
-                if (!container) return;
-                container.innerHTML = "";
-
-                const activeParams = state.customParams.filter(
-                    (p) => p.enabled,
-                );
-                if (activeParams.length === 0) {
-                    container.classList.add("hidden");
-                    return;
-                }
-                container.classList.remove("hidden");
-
-                activeParams.forEach((p) => {
-                    const item = document.createElement("div");
-                    item.className =
-                        "flex items-center gap-2 px-2.5 py-1 bg-slate-100 dark:bg-slate-800/90 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-mono shadow-xs";
-
-                    if (p.type === "slider") {
-                        item.innerHTML = `
-                            <span class="text-[11px] font-bold text-sky-500">${p.name}:</span>
-                            <input type="range" min="${p.min}" max="${p.max}" step="${p.step || 0.1}" value="${p.value}" oninput="updateParamValue('${p.id}', this.value)" class="w-20 h-1 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500" />
-                            <span id="valReadout_${p.id}" class="text-[10px] font-bold text-slate-600 dark:text-slate-300">${p.value}</span>
-                        `;
-                    } else if (p.type === "dropdown") {
-                        const optsHtml = p.options
-                            .map(
-                                (o) =>
-                                    `<option value="${o}" ${o === p.value ? "selected" : ""}>${o}</option>`,
-                            )
-                            .join("");
-                        item.innerHTML = `
-                            <span class="text-[11px] font-bold text-indigo-500">${p.name}:</span>
-                            <select onchange="updateParamValue('${p.id}', this.value)" class="bg-transparent text-xs font-mono text-slate-700 dark:text-slate-200 outline-none cursor-pointer">
-                                ${optsHtml}
-                            </select>
-                        `;
-                    } else if (p.type === "switch") {
-                        item.innerHTML = `
-                            <span class="text-[11px] font-bold text-emerald-500">${p.name}:</span>
-                            <button onclick="updateParamValue('${p.id}', ${!p.value})" class="px-2 py-0.5 rounded-md text-[10px] font-bold transition ${p.value ? "bg-emerald-500 text-white" : "bg-slate-300 dark:bg-slate-700 text-slate-500"}">
-                                ${p.value ? "TRUE" : "FALSE"}
-                            </button>
-                        `;
-                    }
-                    container.appendChild(item);
-                });
-            }
-
-            async function fetchModelsList(force = false) {
-                const icon = document.getElementById("refreshModelsIcon");
-                if (icon) icon.classList.add("fa-spin");
-
-                const defaultFallback = [
-                    "gpt-4o",
-                    "gpt-4o-mini",
-                    "gpt-4-turbo",
-                    "claude-3-5-sonnet",
-                    "deepseek-r1",
-                ];
-
-                for (const prov of state.providers) {
-                    if (prov.apiKey) {
-                        try {
-                            const res = await fetch(
-                                `${normalizeBaseUrl(prov.baseUrl)}/models`,
-                                {
-                                    headers: {
-                                        Authorization: `Bearer ${prov.apiKey}`,
-                                    },
-                                },
-                            );
-
-                            if (res.ok) {
-                                const data = await res.json();
-                                if (
-                                    data &&
-                                    data.data &&
-                                    Array.isArray(data.data)
-                                ) {
-                                    state.providerModels[prov.id] = data.data
-                                        .map((m) => m.id)
-                                        .sort();
-                                    continue;
-                                }
-                            }
-                        } catch (e) {
-                            console.warn(
-                                `Failed fetching models for ${prov.name}:`,
-                                e,
-                            );
-                        }
-                    }
-                    state.providerModels[prov.id] = defaultFallback;
-                }
-
-                renderModelsDropdown();
-                if (icon) icon.classList.remove("fa-spin");
-            }
-
-            function renderModelsDropdown() {
-                const listEl = document.getElementById("modelsList");
-                const countEl = document.getElementById("modelCountLabel");
-                const searchInput = document.getElementById("modelSearchInput");
-                const searchTerm = searchInput
-                    ? searchInput.value.trim().toLowerCase()
-                    : "";
-                if (!listEl) return;
-
-                let totalCount = 0;
-                listEl.innerHTML = "";
-
-                state.providers.forEach((prov) => {
-                    const models = state.providerModels[prov.id] || [];
-                    const matchingModels = models.filter(
-                        (modelId) =>
-                            modelId.toLowerCase().includes(searchTerm) ||
-                            prov.name.toLowerCase().includes(searchTerm),
-                    );
-
-                    if (matchingModels.length === 0) return;
-
-                    totalCount += matchingModels.length;
-
-                    const groupContainer = document.createElement("div");
-                    groupContainer.className = "space-y-1";
-
-                    const header = document.createElement("div");
-                    header.className =
-                        "px-2 py-1 text-[10px] font-bold text-sky-500 uppercase tracking-wider bg-slate-100 dark:bg-slate-800/60 rounded-lg flex items-center justify-between";
-                    header.innerHTML = `<span>${escapeHtml(prov.name)}</span><span class="text-[9px] text-slate-400 font-normal">(${matchingModels.length})</span>`;
-                    groupContainer.appendChild(header);
-
-                    matchingModels.forEach((modelId) => {
-                        const isSelected =
-                            prov.id === state.currentProviderId &&
-                            modelId === state.currentModel;
-
-                        const btn = document.createElement("button");
-                        btn.className = `w-full text-left px-2 py-1.5 rounded-xl text-xs flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 transition ${isSelected ? "bg-sky-500/10 text-sky-500 font-semibold" : "text-slate-700 dark:text-slate-300"}`;
-
-                        btn.innerHTML = `
-                            <span class="truncate" onclick="event.stopPropagation()">
-                                <strong class="font-bold mr-1">${escapeHtml(prov.name)}</strong>
-                                <span class="font-normal opacity-90">${escapeHtml(modelId)}</span>
-                            </span>
-                            ${isSelected ? '<i class="fa-solid fa-check text-xs text-sky-500"></i>' : ""}
-                        `;
-                        btn.onclick = () => selectModel(prov.id, modelId);
-                        groupContainer.appendChild(btn);
-                    });
-
-                    listEl.appendChild(groupContainer);
-                });
-
-                if (totalCount === 0) {
-                    listEl.innerHTML = `<div class="p-3 text-center text-xs text-slate-400 italic">No models found matching "${escapeHtml(searchTerm)}"</div>`;
-                }
-
-                if (countEl) countEl.innerText = `Models (${totalCount})`;
-                updateModelButtonLabel();
-            }
-
-            function selectModel(providerId, modelId) {
-                state.currentProviderId = providerId;
-                state.currentModel = modelId;
-                localStorage.setItem("ai_current_provider_id", providerId);
-                localStorage.setItem("ai_model", modelId);
-
-                updateModelButtonLabel();
-                const drop = document.getElementById("modelDropdown");
-                if (drop) drop.classList.add("hidden");
-                renderModelsDropdown();
-            }
-
-            // Resolve focus context dynamically on formatting actions
-            function getActiveEditor() {
-                if (
-                    document.activeElement &&
-                    document.activeElement.id === "systemPromptInput"
-                ) {
-                    return document.activeElement;
-                }
-                return document.getElementById("userInput");
-            }
-
-            function getClosestTagNode(node, tagNames) {
-                let curr = node;
-                const activeEditor = getActiveEditor();
-                while (
-                    curr &&
-                    curr !== document.body &&
-                    curr !== activeEditor
-                ) {
-                    if (
-                        curr.nodeType === Node.ELEMENT_NODE &&
-                        tagNames.includes(curr.tagName.toLowerCase())
-                    ) {
-                        return curr;
-                    }
-                    curr = curr.parentNode;
-                }
-                return null;
-            }
-
-            function applyHeading(tag) {
-                const editor = getActiveEditor();
-                if (!editor) return;
-                editor.focus();
-
-                const sel = window.getSelection();
-                if (!sel || !sel.rangeCount) return;
-                const anchorNode = sel.anchorNode;
-                const currentBlock = anchorNode
-                    ? getClosestTagNode(anchorNode, [
-                          "h1",
-                          "h2",
-                          "h3",
-                          "h4",
-                          "p",
-                          "div",
-                      ])
-                    : null;
-
-                const currentTag = currentBlock
-                    ? currentBlock.tagName.toLowerCase()
-                    : "";
-                const targetTag =
-                    currentTag === tag.toLowerCase() ? "p" : tag.toLowerCase();
-
-                if (currentBlock && currentBlock !== editor) {
-                    const newElem = document.createElement(targetTag);
-                    newElem.className = currentBlock.className;
-                    newElem.innerHTML = currentBlock.innerHTML || "<br>";
-                    currentBlock.parentNode.replaceChild(newElem, currentBlock);
-
-                    const range = document.createRange();
-                    range.selectNodeContents(newElem);
-                    range.collapse(false);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                } else {
-                    try {
-                        document.execCommand(
-                            "formatBlock",
-                            false,
-                            `<${targetTag}>`,
-                        );
-                    } catch (e) {}
-                }
-            }
-
-            function applyWYSIWYG(type) {
-                const editor = getActiveEditor();
-                if (!editor) return;
-                editor.focus();
-
-                const sel = window.getSelection();
-                const anchorNode = sel.rangeCount ? sel.anchorNode : null;
-                const li = anchorNode
-                    ? getClosestTagNode(anchorNode, ["li"])
-                    : null;
-
-                switch (type) {
-                    case "bold":
-                        document.execCommand("bold");
-                        break;
-                    case "italic":
-                        document.execCommand("italic");
-                        break;
-                    case "strike":
-                        document.execCommand("strikeThrough");
-                        break;
-                    case "ul":
-                        if (li) document.execCommand("indent");
-                        else document.execCommand("insertUnorderedList");
-                        break;
-                    case "ol":
-                        if (li) document.execCommand("indent");
-                        else document.execCommand("insertOrderedList");
-                        break;
-                    case "sublist":
-                        document.execCommand("indent");
-                        break;
-                    case "task":
-                        document.execCommand(
-                            "insertHTML",
-                            false,
-                            '<ul style="list-style-type:none"><li class="flex items-center gap-2"><input type="checkbox" class="mr-1" /> Task item</li></ul>',
-                        );
-                        break;
-                    case "table":
-                        document.execCommand(
-                            "insertHTML",
-                            false,
-                            "<table><thead><tr><th>Header 1</th><th>Header 2</th></tr></thead><tbody><tr><td>Cell 1</td><td>Cell 2</td></tr></tbody></table><p><br></p>",
-                        );
-                        break;
-                    case "addRow": {
-                        const tr = anchorNode
-                            ? getClosestTagNode(anchorNode, ["tr"])
-                            : null;
-                        if (tr) {
-                            const newTr = document.createElement("tr");
-                            for (let i = 0; i < tr.children.length; i++) {
-                                const newTd = document.createElement("td");
-                                newTd.innerHTML = "Cell content";
-                                newTr.appendChild(newTd);
-                            }
-                            tr.parentNode.insertBefore(newTr, tr.nextSibling);
-                        }
-                        break;
-                    }
-                    case "addCol": {
-                        const table = anchorNode
-                            ? getClosestTagNode(anchorNode, ["table"])
-                            : null;
-                        if (table) {
-                            table.querySelectorAll("tr").forEach((row, idx) => {
-                                const cell = document.createElement(
-                                    idx === 0 ? "th" : "td",
-                                );
-                                cell.innerHTML = idx === 0 ? "Header" : "Cell";
-                                row.appendChild(cell);
-                            });
-                        }
-                        break;
-                    }
-                    case "delRow": {
-                        const tr = anchorNode
-                            ? getClosestTagNode(anchorNode, ["tr"])
-                            : null;
-                        if (tr) tr.remove();
-                        break;
-                    }
-                    case "delCol": {
-                        const td = anchorNode
-                            ? getClosestTagNode(anchorNode, ["td", "th"])
-                            : null;
-                        if (td) {
-                            const colIdx = Array.from(
-                                td.parentElement.children,
-                            ).indexOf(td);
-                            const table = td.closest("table");
-                            if (table && colIdx !== -1) {
-                                table
-                                    .querySelectorAll("tr")
-                                    .forEach((r) =>
-                                        r.children[colIdx]?.remove(),
-                                    );
-                            }
-                        }
-                        break;
-                    }
-                    case "code": {
-                        const selectedText =
-                            sel.toString() || "// Write code here";
-                        document.execCommand(
-                            "insertHTML",
-                            false,
-                            `<pre><code class="language-javascript">${selectedText}</code></pre><p><br></p>`,
-                        );
-                        break;
-                    }
-                }
-            }
-
-            function escapeMarkdownSymbols(str) {
-                if (!str) return "";
-                return str.replace(/([\\*\-_~#+`[\](){}!>])/g, "\\$1");
-            }
-
-            // Universal markdown compiler parser logic
-            function getEditorMarkdown(
-                editor = document.getElementById("userInput"),
-            ) {
-                if (!editor) return "";
-
-                function parseNode(node) {
-                    if (node.nodeType === Node.TEXT_NODE) {
-                        return escapeMarkdownSymbols(node.textContent);
-                    }
-                    if (node.nodeType !== Node.ELEMENT_NODE) return "";
-
-                    const tag = node.tagName.toLowerCase();
-
-                    if (tag === "table") {
-                        let markdownTable = "\n";
-                        const rows = Array.from(node.querySelectorAll("tr"));
-                        if (rows.length > 0) {
-                            rows.forEach((row, rowIndex) => {
-                                const cells = Array.from(row.children).filter(
-                                    (child) =>
-                                        ["th", "td"].includes(
-                                            child.tagName.toLowerCase(),
-                                        ),
-                                );
-                                if (cells.length > 0) {
-                                    const rowText = cells
-                                        .map((cell) => {
-                                            return Array.from(cell.childNodes)
-                                                .map(parseNode)
-                                                .join("")
-                                                .trim()
-                                                .replace(/\|/g, "\\|")
-                                                .replace(/\n/g, " ");
-                                        })
-                                        .join(" | ");
-
-                                    markdownTable += `| ${rowText} |\n`;
-
-                                    if (rowIndex === 0) {
-                                        const separators = cells
-                                            .map(() => "---")
-                                            .join(" | ");
-                                        markdownTable += `| ${separators} |\n`;
-                                    }
-                                }
-                            });
-                        }
-                        return markdownTable + "\n";
-                    }
-
-                    if (["thead", "tbody", "tr", "th", "td"].includes(tag)) {
-                        return "";
-                    }
-
-                    if (tag === "ul") {
-                        return (
-                            Array.from(node.children)
-                                .map(
-                                    (li) =>
-                                        `- ${Array.from(li.childNodes).map(parseNode).join("").trim()}`,
-                                )
-                                .join("\n") + "\n\n"
-                        );
-                    }
-                    if (tag === "ol") {
-                        return (
-                            Array.from(node.children)
-                                .map(
-                                    (li, idx) =>
-                                        `${idx + 1}. ${Array.from(li.childNodes).map(parseNode).join("").trim()}`,
-                                )
-                                .join("\n") + "\n\n"
-                        );
-                    }
-                    if (tag === "li") {
-                        return Array.from(node.childNodes)
-                            .map(parseNode)
-                            .join("")
-                            .trim();
-                    }
-
-                    const inner = Array.from(node.childNodes)
-                        .map(parseNode)
-                        .join("");
-
-                    switch (tag) {
-                        case "h1":
-                            return `# ${inner.trim()}\n\n`;
-                        case "h2":
-                            return `## ${inner.trim()}\n\n`;
-                        case "h3":
-                            return `### ${inner.trim()}\n\n`;
-                        case "h4":
-                            return `#### ${inner.trim()}\n\n`;
-                        case "b":
-                        case "strong":
-                            return `**${inner}**`;
-                        case "i":
-                        case "em":
-                            return `*${inner}*`;
-                        case "s":
-                        case "strike":
-                            return `~~${inner}~~`;
-                        case "code":
-                            return `\`${node.textContent}\``;
-                        case "pre":
-                            return `\`\`\`\n${node.textContent.trim()}\n\`\`\`\n\n`;
-                        case "blockquote":
-                            return `> ${inner.trim()}\n\n`;
-                        case "p":
-                            return `${inner}\n\n`;
-                        case "div":
-                            return `${inner}\n`;
-                        case "br":
-                            return "\n";
-                        default:
-                            return inner;
-                    }
-                }
-
-                return Array.from(editor.childNodes)
-                    .map(parseNode)
-                    .join("")
-                    .trim()
-                    .replace(/\n{3,}/g, "\n\n");
-            }
-
-            function handleKeyDown(e) {
-                const target = e.currentTarget;
-                const sel = window.getSelection();
-                const anchorNode = sel.rangeCount ? sel.anchorNode : null;
-                const heading = anchorNode
-                    ? getClosestTagNode(anchorNode, [
-                          "h1",
-                          "h2",
-                          "h3",
-                          "h4",
-                          "h5",
-                          "h6",
-                      ])
-                    : null;
-                const li = anchorNode
-                    ? getClosestTagNode(anchorNode, ["li"])
-                    : null;
-                const pre = anchorNode
-                    ? getClosestTagNode(anchorNode, ["pre"])
-                    : null;
-
-                if (e.key === "Backspace" && li) {
-                    const text = li.textContent.replace(/[\n\r]/g, "").trim();
-                    const selectionAtStart =
-                        sel.isCollapsed && sel.anchorOffset === 0;
-
-                    if (text === "" || selectionAtStart) {
-                        const parentUlOrOl = li.parentElement;
-                        const grandparentLi = parentUlOrOl
-                            ? parentUlOrOl.parentElement
-                            : null;
-
-                        if (
-                            grandparentLi &&
-                            grandparentLi.tagName.toLowerCase() === "li"
-                        ) {
-                            e.preventDefault();
-                            document.execCommand("outdent");
-                            return;
-                        }
-
-                        if (text === "") {
-                            e.preventDefault();
-                            document.execCommand("outdent");
-                            return;
-                        }
-                    }
-                }
-
-                if (e.key === "Enter" && e.shiftKey && heading) {
-                    e.preventDefault();
-                    const p = document.createElement("p");
-                    p.innerHTML = "<br>";
-                    if (heading.nextSibling) {
-                        heading.parentNode.insertBefore(p, heading.nextSibling);
-                    } else {
-                        heading.parentNode.appendChild(p);
-                    }
-                    const range = document.createRange();
-                    range.setStart(p, 0);
-                    range.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                    return;
-                }
-
-                if (e.key === "Enter") {
-                    if (pre) {
-                        e.preventDefault();
-                        document.execCommand("insertLineBreak");
-                        return;
-                    }
-
-                    if (li) {
-                        const text = li.textContent
-                            .replace(/[\n\r]/g, "")
-                            .trim();
-                        if (text === "") {
-                            e.preventDefault();
-                            document.execCommand("outdent");
-                            return;
-                        } else {
-                            e.preventDefault();
-                            const newLi = document.createElement("li");
-                            newLi.innerHTML = "<br>";
-                            if (li.nextSibling)
-                                li.parentNode.insertBefore(
-                                    newLi,
-                                    li.nextSibling,
-                                );
-                            else li.parentNode.appendChild(newLi);
-
-                            const range = document.createRange();
-                            range.setStart(newLi, 0);
-                            range.collapse(true);
-                            sel.removeAllRanges();
-                            sel.addRange(range);
-                            return;
-                        }
-                    }
-
-                    if (!e.shiftKey) {
-                        if (target && target.id === "userInput") {
-                            e.preventDefault();
-                            sendMessage();
-                        }
-                    }
-                }
-            }
-
-            function getActiveMessages() {
-                const currentConv = state.conversations.find(
-                    (c) => c.id === state.currentConvId,
-                );
-                return currentConv ? currentConv.messages : [];
-            }
-
-            function renderChatHistory() {
-                const container = document.getElementById("chatContainer");
-                const empty = document.getElementById("emptyState");
-
-                container
-                    .querySelectorAll(".msg-group")
-                    .forEach((e) => e.remove());
-
-                const activeMsgs = getActiveMessages();
-
-                if (activeMsgs.length === 0) {
-                    if (empty) empty.classList.remove("hidden");
-                    return;
-                }
-
-                if (empty) empty.classList.add("hidden");
-
-                activeMsgs.forEach((msg) => {
-                    appendMessageToDom(
-                        msg.role,
-                        msg.content,
-                        msg.reasoning_content,
-                    );
-                });
-
-                scrollToBottom();
-            }
-
-            function appendMessageToDom(role, content = "", reasoning = "") {
-                const container = document.getElementById("chatContainer");
-                const empty = document.getElementById("emptyState");
-                if (empty) empty.classList.add("hidden");
-
-                const isUser = role === "user";
-                const wrapper = document.createElement("div");
-                wrapper.className = `msg-group flex items-start gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"}`;
-
-                const avatar = document.createElement("div");
-                avatar.className = `w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white shadow-sm flex-shrink-0 ${isUser ? "bg-sky-500" : "bg-indigo-600"}`;
-                avatar.innerHTML = isUser
-                    ? '<i class="fa-solid fa-user"></i>'
-                    : '<i class="fa-solid fa-robot"></i>';
-
-                const bubble = document.createElement("div");
-                bubble.className = `max-w-[85%] sm:max-w-[78%] p-3 sm:p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/90 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700/80 ${isUser ? "rounded-tr-xs" : "rounded-tl-xs"} shadow-sm markdown-body overflow-x-auto`;
-
-                let htmlContent = "";
-                if (reasoning) {
-                    htmlContent += `
-                        <details class="mb-3 p-2 bg-slate-200/50 dark:bg-slate-800/50 rounded-xl text-xs text-slate-500 dark:text-slate-400">
-                            <summary class="cursor-pointer font-bold select-none"><i class="fa-solid fa-brain mr-1 font-normal opacity-80"></i> Thinking Process</summary>
-                            <div class="mt-2 markdown-body text-[11px] opacity-80">${parseMarkdownWithMath(reasoning)}</div>
-                        </details>
-                    `;
-                }
-                htmlContent += parseMarkdownWithMath(content || "");
-
-                bubble.innerHTML = htmlContent;
-                enhanceCodeBlocks(bubble);
-
-                wrapper.appendChild(avatar);
-                wrapper.appendChild(bubble);
-                container.appendChild(wrapper);
-
-                scrollToBottom();
-                return bubble;
-            }
-
-            function enhanceCodeBlocks(container) {
-                container.querySelectorAll("pre code").forEach((codeBlock) => {
-                    hljs.highlightElement(codeBlock);
-
-                    const pre = codeBlock.parentElement;
-                    if (pre.querySelector(".code-header")) return;
-
-                    // Collapse raw code nodes inside wrapper container by default
-                    codeBlock.style.display = "none";
-
-                    const langMatch =
-                        codeBlock.className.match(/language-(\w+)/);
-                    const lang = langMatch ? langMatch[1] : "code";
-
-                    const header = document.createElement("div");
-                    header.className =
-                        "code-header flex items-center justify-between px-3 py-1.5 bg-slate-800 text-slate-300 text-[11px] font-mono border-b border-slate-700 rounded-t-xl select-none";
-                    header.innerHTML = `
-                        <span class="font-bold text-sky-400 uppercase">${lang}</span>
-                        <div class="flex items-center gap-2">
-                            <button onclick="copyCode(this)" class="hover:text-white p-1" title="Copy Code"><i class="fa-solid fa-copy"></i></button>
-                            <button onclick="downloadCode(this, '${lang}')" class="hover:text-white p-1" title="Download Code"><i class="fa-solid fa-download"></i></button>
-                            <button onclick="toggleCollapseCode(this)" class="hover:text-white p-1" title="Expand Block"><i class="fa-solid fa-chevron-down"></i></button>
-                        </div>
-                    `;
-
-                    pre.insertBefore(header, codeBlock);
-                });
-            }
-
-            function copyCode(btn) {
-                const pre = btn.closest("pre");
-                if (!pre) return;
-                const code = pre.querySelector("code")?.innerText || "";
-
-                navigator.clipboard
-                    .writeText(code)
-                    .then(() => {
-                        btn.innerHTML =
-                            '<i class="fa-solid fa-check text-green-400"></i>';
-                        setTimeout(
-                            () =>
-                                (btn.innerHTML =
-                                    '<i class="fa-solid fa-copy"></i>'),
-                            1500,
-                        );
-                    })
-                    .catch(() => {
-                        const textarea = document.createElement("textarea");
-                        textarea.value = code;
-                        textarea.style.position = "fixed";
-                        textarea.style.opacity = "0";
-                        document.body.appendChild(textarea);
-                        textarea.focus();
-                        textarea.select();
-                        try {
-                            document.execCommand("copy");
-                        } catch (err) {}
-                        document.body.removeChild(textarea);
-                        btn.innerHTML =
-                            '<i class="fa-solid fa-check text-green-400"></i>';
-                        setTimeout(
-                            () =>
-                                (btn.innerHTML =
-                                    '<i class="fa-solid fa-copy"></i>'),
-                            1500,
-                        );
-                    });
-            }
-
-            function downloadCode(btn, lang) {
-                const pre = btn.closest("pre");
-                const code = pre.querySelector("code").innerText;
-                const blob = new Blob([code], { type: "text/plain" });
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(blob);
-                a.download = `snippet.${lang || "txt"}`;
-                a.click();
-                URL.revokeObjectURL(a.href);
-            }
-
-            function toggleCollapseCode(btn) {
-                const pre = btn.closest("pre");
-                const code = pre?.querySelector("code");
-                if (!code) return;
-                const isHidden = code.style.display === "none";
-                code.style.display = isHidden ? "" : "none";
-                btn.innerHTML = isHidden
-                    ? '<i class="fa-solid fa-chevron-up"></i>'
-                    : '<i class="fa-solid fa-chevron-down"></i>';
-            }
-
-            function scrollToBottom() {
-                const container = document.getElementById("chatContainer");
-                container.scrollTop = container.scrollHeight;
-            }
-
-            async function sendMessage() {
-                const editor = document.getElementById("userInput");
-                const markdownContent = getEditorMarkdown(editor);
-
-                if (!markdownContent) return;
-
-                const activeProvider = getActiveProvider();
-                if (
-                    !activeProvider ||
-                    (!activeProvider.apiKey &&
-                        activeProvider.baseUrl.includes("openai.com"))
-                ) {
-                    toggleModal("settingsModal");
-                    return;
-                }
-
-                let currentConv = state.conversations.find(
-                    (c) => c.id === state.currentConvId,
-                );
-                if (!currentConv) {
-                    currentConv = createNewConversation(true);
-                }
-
-                // Auto-generate conversation title from the first prompt
-                if (
-                    currentConv.title === "Untitled Chat" ||
-                    currentConv.title === "New Chat"
-                ) {
-                    let textExcerpt = markdownContent
-                        .replace(/[#*`_>~\[\]()-]/g, "")
-                        .trim();
-                    if (textExcerpt) {
-                        currentConv.title =
-                            textExcerpt.length > 28
-                                ? textExcerpt.slice(0, 28) + "..."
-                                : textExcerpt;
-                        saveConversationsState();
-                        renderSidebarConversations();
-                    }
-                }
-
-                // Append User Message to State
-                currentConv.messages.push({
-                    role: "user",
-                    content: markdownContent,
-                });
-                saveConversationsState();
-
-                appendMessageToDom("user", markdownContent);
-                editor.innerHTML = "";
-
-                // Prepare API Request Payload
-                setGenerationState(true);
-
-                // Build System Prompt with active MCP tools metadata attached if any
-                let activeSystemPrompt =
-                    state.systemPrompt || "You are a helpful assistant.";
-
-                const enabledMcpTools = (state.mcpTools || []).filter(
-                    (t) => t.enabled,
-                );
-                if (enabledMcpTools.length > 0) {
-                    activeSystemPrompt +=
-                        "\n\nAvailable MCP Tools Context:\n" +
-                        enabledMcpTools
-                            .map(
-                                (t) =>
-                                    `- [${t.name}] (${t.type}): ${t.description || "No description"} (Endpoint/Command: ${t.url || "Local"})`,
-                            )
-                            .join("\n");
-                }
-
-                // Interpolate variables
-                const now = new Date();
-                activeSystemPrompt = activeSystemPrompt
-                    .replace(/{model-ID}/g, state.currentModel)
-                    .replace(/{Time}/g, now.toLocaleTimeString())
-                    .replace(/{date}/g, now.toLocaleDateString())
-                    .replace(/{place}/g, "Local Client");
-
-                const apiMessages = [
-                    { role: "system", content: activeSystemPrompt },
-                    ...currentConv.messages.map((m) => ({
-                        role: m.role,
-                        content: m.content,
-                    })),
-                ];
-
-                // Build Parameters Payload
-                const bodyParams = {
-                    model: state.currentModel,
-                    messages: apiMessages,
-                    stream: true,
-                };
-
-                state.customParams.forEach((p) => {
-                    if (p.enabled) {
-                        bodyParams[p.name] = p.value;
-                    }
-                });
-
-                currentAbortController = new AbortController();
-
-                try {
-                    const res = await fetch(
-                        `${normalizeBaseUrl(activeProvider.baseUrl)}/chat/completions`,
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${activeProvider.apiKey}`,
-                            },
-                            body: JSON.stringify(bodyParams),
-                            signal: currentAbortController.signal,
-                        },
-                    );
-
-                    if (!res.ok) {
-                        const errText = await res.text();
-                        throw new Error(`API Error ${res.status}: ${errText}`);
-                    }
-
-                    // Stream Reader
-                    const reader = res.body.getReader();
-                    const decoder = new TextDecoder("utf-8");
-                    let assistantBubble = appendMessageToDom("assistant", "");
-                    let fullContent = "";
-                    let fullReasoning = "";
-
-                    let assistantMessageObj = {
-                        role: "assistant",
-                        content: "",
-                        reasoning_content: "",
-                    };
-                    currentConv.messages.push(assistantMessageObj);
-
-                    let buffer = "";
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-
-                        buffer += decoder.decode(value, { stream: true });
-                        const lines = buffer.split("\n");
-                        buffer = lines.pop() || "";
-
-                        for (const line of lines) {
-                            const trimmed = line.trim();
-                            if (!trimmed || trimmed === "data: [DONE]")
-                                continue;
-                            if (trimmed.startsWith("data: ")) {
-                                try {
-                                    const json = JSON.parse(trimmed.slice(6));
-                                    const delta = json.choices?.[0]?.delta;
-                                    if (delta) {
-                                        if (delta.reasoning_content) {
-                                            fullReasoning +=
-                                                delta.reasoning_content;
-                                            assistantMessageObj.reasoning_content =
-                                                fullReasoning;
-                                        }
-                                        if (delta.content) {
-                                            fullContent += delta.content;
-                                            assistantMessageObj.content =
-                                                fullContent;
-                                        }
-
-                                        let updatedHtml = "";
-                                        if (fullReasoning) {
-                                            updatedHtml += `
-                                                <details class="mb-3 p-2 bg-slate-200/50 dark:bg-slate-800/50 rounded-xl text-xs text-slate-500 dark:text-slate-400">
-                                                    <summary class="cursor-pointer font-bold select-none"><i class="fa-solid fa-brain mr-1 font-normal opacity-80"></i> Thinking Process</summary>
-                                                    <div class="mt-2 markdown-body text-[11px] opacity-80">${parseMarkdownWithMath(fullReasoning)}</div>
-                                                </details>
-                                            `;
-                                        }
-                                        updatedHtml +=
-                                            parseMarkdownWithMath(fullContent) +
-                                            '<span class="typing-cursor"></span>';
-                                        assistantBubble.innerHTML = updatedHtml;
-                                        enhanceCodeBlocks(assistantBubble);
-                                        scrollToBottom();
-                                    }
-                                } catch (e) {
-                                    console.error(
-                                        "Error parsing SSE streaming payload:",
-                                        e,
-                                    );
-                                }
-                            }
-                        }
-                    }
-
-                    // Render final output after stream completes
-                    let finalHtml = "";
-                    if (fullReasoning) {
-                        finalHtml += `
-                            <details class="mb-3 p-2 bg-slate-200/50 dark:bg-slate-800/50 rounded-xl text-xs text-slate-500 dark:text-slate-400">
-                                <summary class="cursor-pointer font-bold select-none"><i class="fa-solid fa-brain mr-1 font-normal opacity-80"></i> Thinking Process</summary>
-                                <div class="mt-2 markdown-body text-[11px] opacity-80">${parseMarkdownWithMath(fullReasoning)}</div>
-                            </details>
-                        `;
-                    }
-                    finalHtml += parseMarkdownWithMath(fullContent);
-                    assistantBubble.innerHTML = finalHtml;
-                    enhanceCodeBlocks(assistantBubble);
-                    saveConversationsState();
-                } catch (err) {
-                    if (err.name !== "AbortError") {
-                        appendMessageToDom(
-                            "assistant",
-                            `<span class="text-red-500"><i class="fa-solid fa-circle-exclamation mr-1"></i> Error: ${escapeHtml(err.message)}</span>`,
-                        );
-                    }
-                } finally {
-                    setGenerationState(false);
-                    currentAbortController = null;
-                }
-            }
-        </script>
+        <script src="https://js.puter.com/v2/puter.js" defer></script>
+        <script src="markdown-editor.js" defer></script>
+        <script src="main.js" defer></script>
     </body>
 </html>
