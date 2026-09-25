@@ -196,3 +196,70 @@ details.reasoning-block[open] summary {
     border-bottom: 1px dashed rgba(99, 102, 241, 0.3);
     padding-bottom: 0.25rem;
 }
+
+/* Base <file> tag styling */
+file {
+    display: inline-flex !important;
+    align-items: center;
+    position: relative;
+    font-size: 0 !important; /* Hide raw child text nodes to avoid duplicate rendering */
+    color: transparent !important;
+    line-height: 0 !important;
+    margin: 2px 4px;
+    vertical-align: middle;
+    user-select: none;
+}
+
+/* Render pill button content */
+file::before {
+    /* Fall back to 'file' if title attribute is missing or empty */
+    content: "📄 " attr(title);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem !important;
+    font-weight: 500;
+    line-height: 1.2;
+    color: #334155;
+    background-color: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 9999px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.15s ease-in-out;
+}
+
+/* Hover effects for file pills */
+file:hover::before {
+    background-color: #e2e8f0;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+/* Fallback if title attribute is empty */
+file[title=""]::before,
+file:not([title])::before {
+    content: "📄 file";
+}
+
+/* Dark mode support */
+.dark file::before,
+[data-theme="dark"] file::before {
+    color: #cbd5e1;
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+.dark file:hover::before,
+[data-theme="dark"] file:hover::before {
+    background-color: #334155;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+/* Prevent broken inline images inside file pills from breaking layout */
+file img {
+    display: none !important;
+}
