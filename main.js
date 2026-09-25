@@ -1,3 +1,231 @@
+let attachedFiles = [];
+
+function handleFileUpload(event) {
+    const files = Array.from(event.target.files);
+    if (!files.length) return;
+
+    files.forEach((file) => {
+        const fileObj = {
+            id:
+                "file_" +
+                Date.now() +
+                "_" +
+                Math.random().toString(36).substring(2, 7),
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            dataUrl: null,
+            content: null,
+            isImage: file.type.startsWith("image/"),
+        };
+
+        const reader = new FileReader();
+        if (fileObj.isImage) {
+            reader.onload = (e) => {
+                fileObj.dataUrl = e.target.result;
+                attachedFiles.push(fileObj);
+                renderAttachedFilesPreview();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            reader.onload = (e) => {
+                fileObj.content = e.target.result;
+                attachedFiles.push(fileObj);
+                renderAttachedFilesPreview();
+            };
+            reader.readAsText(file);
+        }
+    });
+
+    event.target.value = "";
+}
+function parseFileTagsFromPrompt(rawText) {
+    if (!rawText || typeof rawText !== "string") {
+        return { cleanPromptText: rawText || "", extractedFiles: [] };
+    }
+
+    // Support base64 encoded file payloads to prevent raw inner <file> tags from breaking the parser
+    const fileRegex = /<file\s+title="([^"]+)"(?:\s+encoding="base64")?>\n?([\s\S]*?)\n?<\/file>/gi;
+    const extractedFiles = [];
+    let match;
+
+    while ((match = fileRegex.exec(rawText)) !== null) {
+        let name = match[1];
+        let rawContent = match[2].trim();
+        let decodedContent = rawContent;
+
+        // If content was base64 encoded, decode it cleanly back into original JS source code
+        if (match[0].includes('encoding="base64"')) {
+            try {
+                decodedContent = decodeURIComponent(escape(atob(rawContent)));
+            } catch (e) {
+                decodedContent = rawContent;
+            }
+        }
+
+        extractedFiles.push({
+            name: name,
+            content: decodedContent,
+            type: name.endsWith(".js") ? "text/javascript" : "text/plain"
+        });
+    }
+
+    // Strip out outer file tags cleanly
+    const cleanPromptText = rawText.replace(fileRegex, "").trim();
+
+    return { cleanPromptText, extractedFiles };
+}
+
+// Inside your function that OPENS the edit mode:
+function openEditMode(messageNode) {
+    const { cleanPromptText, extractedFiles } = parseFileTagsFromPrompt(messageNode.content);
+
+    // Set the text field value to the clean text without <file> tags
+    document.getElementById("edit-textarea").value = cleanPromptText;
+
+    // Push the extracted files back into your active attachments array
+    activeAttachments = [...extractedFiles];
+
+    // Re-render your file attachment preview chips/UI below the input box
+    renderAttachmentPreviews(activeAttachments);
+}
+function extractFileTagsFromText(text) {
+    const fileRegex = /<file\s+title="([^"]+)">\n?([\s\S]*?)<\/file>/g;
+    const extractedFiles = [];
+    let match;
+
+    while ((match = fileRegex.exec(text)) !== null) {
+        extractedFiles.push({
+            name: match[1],
+            content: match[2].trim(),
+            isExtractedTag: true
+        });
+    }
+
+    // Strip the raw <file> tags out so the text content remains clean
+    const cleanText = text.replace(fileRegex, '').trim();
+
+    return { cleanText, extractedFiles };
+}
+// Example usage inside your edit message submission logic
+function handleEditSubmit(editedText, existingAttachments = []) {
+    const { cleanText, extractedFiles } = extractFileTagsFromText(editedText);
+
+    // Merge existing/uploaded attachments with extracted <file> tags
+    const combinedAttachments = [...existingAttachments, ...extractedFiles];
+
+    // Proceed with sending/saving cleanText and combinedAttachments
+    updateMessageInState(cleanText, combinedAttachments);
+}
+
+// Add this helper function to main.js
+function appendUserTextToElement(element, text) {
+    // Standard textContent prevents markdown parsers from converting text into code boxes
+    element.textContent = text;
+    element.style.whiteSpace = "pre-wrap"; // Preserves line breaks naturally
+}
+function removeAttachedFile(fileIdOrElement) {
+    // Extract ID whether passed as a string, number, or DOM event element context
+    const targetId = typeof fileIdOrElement === "object" && fileIdOrElement?.dataset?.id
+        ? fileIdOrElement.dataset.id
+        : String(fileIdOrElement);
+
+    // Filter state arrays (handling potential string vs number ID discrepancies)
+    if (typeof attachedFiles !== "undefined" && Array.isArray(attachedFiles)) {
+        attachedFiles = attachedFiles.filter((f) => String(f.id) !== targetId);
+    }
+
+    if (typeof activeAttachments !== "undefined" && Array.isArray(activeAttachments)) {
+        activeAttachments = activeAttachments.filter((f) => String(f.id) !== targetId);
+    }
+
+    // Re-render preview components
+    if (typeof renderAttachedFilesPreview === "function") {
+        renderAttachedFilesPreview();
+    }
+
+    if (typeof renderAttachmentPreviews === "function") {
+        renderAttachmentPreviews(typeof activeAttachments !== "undefined" ? activeAttachments : []);
+    }
+}
+
+function renderAttachedFilesPreview() {
+    const container = document.getElementById("attachedFilesPreview");
+    if (!container) return;
+
+    if (attachedFiles.length === 0) {
+        container.innerHTML = "";
+        container.classList.add("hidden");
+        return;
+    }
+
+    container.classList.remove("hidden");
+    container.className = "flex flex-wrap gap-1 px-3 py-0 my-0 leading-none";
+    container.innerHTML = "";
+
+    attachedFiles.forEach((file) => {
+        const item = document.createElement("div");
+        item.className =
+            "inline-flex items-center gap-1.5 px-2 py-0.5 bg-slate-200 dark:bg-slate-700/80 rounded-lg text-[11px] font-medium text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shadow-xs relative group";
+
+        if (file.isImage) {
+            item.innerHTML = `
+                <img src="${file.dataUrl}" alt="${escapeHtml(file.name)}" class="w-3.5 h-3.5 object-cover rounded" />
+                <span class="truncate max-w-[110px]" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+                <button type="button" onclick="removeAttachedFile('${file.id}')" class="text-slate-400 hover:text-red-500 transition ml-0.5" title="Remove File">
+                    <i class="fa-solid fa-xmark text-[10px]"></i>
+                </button>
+            `;
+        } else {
+            item.innerHTML = `
+                <i class="fa-solid fa-file-code text-sky-500 text-[10px]"></i>
+                <span class="truncate max-w-[110px]" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+                <button type="button" onclick="removeAttachedFile('${file.id}')" class="text-slate-400 hover:text-red-500 transition ml-0.5" title="Remove File">
+                    <i class="fa-solid fa-xmark text-[10px]"></i>
+                </button>
+            `;
+        }
+        container.appendChild(item);
+    });
+}
+
+function processMessageWithAttachments(userText) {
+    const contentPayload = [];
+
+    if (userText && userText.trim()) {
+        contentPayload.push({
+            type: "text",
+            text: userText.trim(),
+        });
+    }
+
+    attachedFiles.forEach((f) => {
+        if (f.isImage) {
+            contentPayload.push({
+                type: "image_url",
+                image_url: {
+                    url: f.dataUrl,
+                },
+            });
+        } else {
+            // Strip triple backticks to prevent triggering markdown code blocks
+            const cleanText = f.content.replace(/```/g, "''").trim();
+            contentPayload.push({
+                type: "text",
+                text: `Attached File (${f.name}):\n${cleanText}`,
+            });
+        }
+    });
+
+    const currentAttached = [...attachedFiles];
+    attachedFiles = [];
+    renderAttachedFilesPreview();
+
+    return {
+        content: contentPayload.length > 0 ? contentPayload : userText,
+        attachments: currentAttached,
+    };
+}
 const CryptoUtil = {
     async getCryptoKey() {
         const secret = "AI_WRAPPER_SECURE_SALT_2026";
@@ -150,8 +378,21 @@ const MCPEngine = {
         const tools = [];
         const activeTools = state.mcpTools.filter((t) => t.enabled);
 
+
+
+        // Include locally defined WebMCP script tools
         for (const t of activeTools) {
-            if (t.type === "Stdio") continue;
+            if (t.execute && typeof t.execute === "function") {
+                tools.push({
+                    name: t.name,
+                    description: t.description || "",
+                    inputSchema: t.inputSchema || { type: "object", properties: {} }
+                });
+            }
+        }
+
+        for (const t of activeTools) {
+            if (t.type === "Stdio" || typeof t.execute === "function") continue;
 
             try {
                 let targetUrl = t.url;
@@ -222,6 +463,21 @@ const MCPEngine = {
 
     async callTool(toolName, args) {
         const activeTools = state.mcpTools.filter((t) => t.enabled);
+
+        // Check local WebMCP script functions first
+        const localTool = activeTools.find(
+            (t) => t.name === toolName && typeof t.execute === "function"
+        );
+        if (localTool) {
+            try {
+                return await localTool.execute(args);
+            } catch (e) {
+                console.error(`WebMCP script tool execution error for ${toolName}:`, e);
+                return { error: e.message || `Error executing WebMCP script ${toolName}` };
+            }
+        }
+
+        // Fallback to external endpoint MCP tool execution
         for (const t of activeTools) {
             if (t.type === "Stdio") continue;
             const targetUrl =
@@ -256,10 +512,17 @@ const MCPEngine = {
                                 error:
                                     data.error.message || "Unknown MCP error",
                             };
+                        return data;
+                    } else {
+                        const textData = await res.text();
+                        return { result: textData };
                     }
+                } else {
+                    return { error: `HTTP ${res.status}: ${res.statusText}` };
                 }
             } catch (e) {
                 console.error(`MCP Tool execution error for ${toolName}:`, e);
+                return { error: e.message || "Network request failed" };
             }
         }
         return {
@@ -372,6 +635,7 @@ let state = {
     sidebarOpen: localStorage.getItem("ai_sidebar_open") !== "false",
     isEditing: false,
     editingParentId: null,
+    editingRole: null,
 };
 
 let currentAbortController = null;
@@ -380,15 +644,9 @@ function normalizeBaseUrl(url) {
     if (!url) return "https://api.openai.com/v1";
     return url.trim().replace(/\/+$/, "");
 }
-
 function escapeHtml(str) {
     if (!str) return "";
-    return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    return String(str);
 }
 
 function setGenerationState(isGenerating) {
@@ -755,10 +1013,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         state.currentConvId = state.conversations[0].id;
     }
 
-    document.getElementById("systemPromptInput").innerHTML =
-        MarkdownEditor.parseMarkdownWithMath(
-            state.systemPrompt || "You are a helpful assistant.",
-        );
+    const sysPromptEl = document.getElementById("systemPromptInput");
+    if (sysPromptEl) {
+        if ("value" in sysPromptEl) {
+            sysPromptEl.value = state.systemPrompt || "You are a helpful assistant.";
+        } else {
+            sysPromptEl.innerText = state.systemPrompt || "You are a helpful assistant.";
+            sysPromptEl.style.whiteSpace = "pre-wrap";
+        }
+    }
 
     updateModelButtonLabel();
 
@@ -772,6 +1035,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    rehydrateWebMcpTools();
     applySidebarState();
     renderSidebarConversations();
     renderProvidersListInSettings();
@@ -909,9 +1173,15 @@ async function saveAllSettings() {
         state.currentProviderId = state.providers[0]?.id || "prov_default";
     }
 
-    state.systemPrompt = MarkdownEditor.getEditorMarkdown(
-        document.getElementById("systemPromptInput"),
-    );
+    const sysPromptEl = document.getElementById("systemPromptInput");
+    if (sysPromptEl) {
+        const sysPromptEl = document.getElementById("systemPromptInput");
+            if (sysPromptEl) {
+                state.systemPrompt = ("value" in sysPromptEl && sysPromptEl.value !== undefined)
+                    ? sysPromptEl.value
+                    : sysPromptEl.innerText;
+            }
+    }
 
     await saveProvidersToStorage();
     localStorage.setItem("ai_current_provider_id", state.currentProviderId);
@@ -927,10 +1197,15 @@ function toggleModal(id) {
     if (modal) {
         modal.classList.toggle("hidden");
         if (id === "settingsModal" && !modal.classList.contains("hidden")) {
-            document.getElementById("systemPromptInput").innerHTML =
-                MarkdownEditor.parseMarkdownWithMath(
-                    state.systemPrompt || "You are a helpful assistant.",
-                );
+            const sysPromptEl = document.getElementById("systemPromptInput");
+            if (sysPromptEl) {
+                if ("value" in sysPromptEl) {
+                    sysPromptEl.value = state.systemPrompt || "You are a helpful assistant.";
+                } else {
+                    sysPromptEl.innerText = state.systemPrompt || "You are a helpful assistant.";
+                    sysPromptEl.style.whiteSpace = "pre-wrap";
+                }
+            }
         }
     }
 }
@@ -1001,8 +1276,81 @@ function clearChatHistory() {
 }
 
 function saveMcpToolsState() {
-    localStorage.setItem("ai_mcp_tools", JSON.stringify(state.mcpTools));
+    // Strip execution functions prior to JSON stringification
+    const toolsToSave = (state.mcpTools || []).map(tool => {
+        if (tool.type === "WebMCP") {
+            const { execute, ...serializableTool } = tool;
+            return serializableTool;
+        }
+        return tool;
+    });
+
+    localStorage.setItem("ai_mcp_tools", JSON.stringify(toolsToSave));
     renderMcpToolsList();
+}
+function saveNewMcpTool() {
+    const name = document.getElementById("newMcpName").value.trim();
+    const type = document.getElementById("newMcpType").value;
+    const url = document.getElementById("newMcpUrl").value.trim();
+    const desc = document.getElementById("newMcpDesc").value.trim();
+    const jsonConfig = document.getElementById("newMcpJson")
+        ? document.getElementById("newMcpJson").value.trim()
+        : "";
+
+    if (!name) return;
+
+    // Validate JSON input before saving
+    if (jsonConfig) {
+        try {
+            JSON.parse(jsonConfig);
+        } catch (e) {
+            alert("Invalid Custom JSON syntax. Please verify formatted JSON.");
+            return;
+        }
+    }
+
+    const newTool = {
+        id: "mcp_" + Date.now(),
+        name,
+        type,
+        url,
+        description: desc,
+        jsonConfig,
+        enabled: true,
+    };
+
+    if (!state.mcpTools) state.mcpTools = [];
+    state.mcpTools.push(newTool);
+
+    // Clear form inputs
+    document.getElementById("newMcpName").value = "";
+    document.getElementById("newMcpUrl").value = "";
+    document.getElementById("newMcpDesc").value = "";
+    if (document.getElementById("newMcpJson")) {
+        document.getElementById("newMcpJson").value = "";
+    }
+
+    saveMcpToolsState();
+    renderMcpToolsList();
+}
+
+function parseMcpConfig(jsonString) {
+    let headers = {};
+    let body = {};
+    if (!jsonString) return { headers, body };
+
+    try {
+        const parsed = JSON.parse(jsonString);
+        if (parsed.headers && typeof parsed.headers === "object") {
+            headers = parsed.headers;
+        }
+        if (parsed.body && typeof parsed.body === "object") {
+            body = parsed.body;
+        }
+    } catch (e) {
+        console.warn("Failed to parse MCP JSON config:", e);
+    }
+    return { headers, body };
 }
 
 function renderMcpToolsList() {
@@ -1053,30 +1401,105 @@ function removeMcpTool(id) {
     saveMcpToolsState();
 }
 
-function saveNewMcpTool() {
-    const name = document.getElementById("newMcpName").value.trim();
+function toggleMcpTypeFields() {
     const type = document.getElementById("newMcpType").value;
-    const url = document.getElementById("newMcpUrl").value.trim();
-    const desc = document.getElementById("newMcpDesc").value.trim();
+    const urlGroup = document.getElementById("mcpUrlGroup");
+    const jsonGroup = document.getElementById("mcpJsonGroup");
+    const webMcpGroup = document.getElementById("mcpWebMcpGroup");
 
-    if (!name) return;
+    if (type === "WebMCP") {
+        if (urlGroup) urlGroup.classList.add("hidden");
+        if (jsonGroup) jsonGroup.classList.add("hidden");
+        if (webMcpGroup) webMcpGroup.classList.remove("hidden");
+    } else {
+        if (urlGroup) urlGroup.classList.remove("hidden");
+        if (jsonGroup) jsonGroup.classList.remove("hidden");
+        if (webMcpGroup) webMcpGroup.classList.add("hidden");
+    }
+}
+function rehydrateWebMcpTools() {
+    if (Array.isArray(state.mcpTools)) {
+        state.mcpTools = state.mcpTools.map(tool => {
+            if (tool.type === "WebMCP" && tool.scriptText && !tool.execute) {
+                try {
+                    const evaluated = new Function(`return (${tool.scriptText});`)();
+                    tool.execute = evaluated.execute;
+                } catch (e) {
+                    console.error("Failed to restore WebMCP tool execution:", e);
+                }
+            }
+            return tool;
+        });
+    }
+}
+function saveNewMcpTool() {
+    const nameEl = document.getElementById("newMcpName");
+    const typeEl = document.getElementById("newMcpType");
+    const urlEl = document.getElementById("newMcpUrl");
+    const descEl = document.getElementById("newMcpDesc");
 
-    const newTool = {
+    const name = nameEl ? nameEl.value.trim() : "";
+    const type = typeEl ? typeEl.value : "SSE";
+    const url = urlEl ? urlEl.value.trim() : "";
+    const desc = descEl ? descEl.value.trim() : "";
+
+    if (!name) {
+        alert("Please enter a tool name.");
+        return;
+    }
+
+    if (!Array.isArray(state.mcpTools)) {
+        state.mcpTools = [];
+    }
+
+    let parsedTool = {
         id: "mcp_" + Date.now(),
         name,
         type,
         url,
         description: desc,
-        enabled: true,
+        enabled: true
     };
 
-    state.mcpTools.push(newTool);
+    if (type === "WebMCP") {
+        const scriptEl = document.getElementById("newWebMcpScript");
+        const scriptText = scriptEl ? scriptEl.value.trim() : "";
+        if (!scriptText) {
+            alert("Please provide the WebMCP script definition.");
+            return;
+        }
 
-    document.getElementById("newMcpName").value = "";
-    document.getElementById("newMcpUrl").value = "";
-    document.getElementById("newMcpDesc").value = "";
+        try {
+            const evaluated = new Function(`return (${scriptText});`)();
+            parsedTool.inputSchema = evaluated.inputSchema || { type: "object", properties: {} };
+            parsedTool.execute = evaluated.execute;
+            parsedTool.scriptText = scriptText;
+        } catch (e) {
+            alert("Invalid WebMCP Script syntax. Ensure it is a valid JavaScript object format:\n" + e.message);
+            return;
+        }
+    } else {
+        const jsonEl = document.getElementById("newMcpJson");
+        const jsonText = jsonEl ? jsonEl.value.trim() : "";
+        if (jsonText) {
+            try {
+                parsedTool.config = JSON.parse(jsonText);
+            } catch (e) {
+                alert("Invalid Custom JSON syntax. Please format valid JSON.");
+                return;
+            }
+        }
+    }
 
+    state.mcpTools.push(parsedTool);
     saveMcpToolsState();
+
+    // Reset inputs
+    if (nameEl) nameEl.value = "";
+    if (urlEl) urlEl.value = "";
+    if (descEl) descEl.value = "";
+    if (document.getElementById("newWebMcpScript")) document.getElementById("newWebMcpScript").value = "";
+    if (document.getElementById("newMcpJson")) document.getElementById("newMcpJson").value = "";
 }
 
 function addMcpPreset(preset) {
@@ -1523,9 +1946,30 @@ function editMessage(nodeId) {
     const input = document.getElementById("userInput");
     if (!input) return;
 
-    input.innerHTML = MarkdownEditor.parseMarkdownWithMath(node.content);
+    // Extract raw text if content is array-based
+    let rawContent = node.content;
+    if (Array.isArray(rawContent)) {
+        rawContent = rawContent
+            .filter(item => item.type === "text")
+            .map(item => item.text)
+            .join("\n\n");
+    }
+
+    // Parse out existing <file> tags back into attachments
+    const { cleanPromptText, extractedFiles } = parseFileTagsFromPrompt(rawContent);
+
+    // Load only clean prompt text into input
+    input.innerHTML = MarkdownEditor.parseMarkdownWithMath(cleanPromptText);
+
+    // Restore extracted files into the UI preview
+    attachedFiles = [...extractedFiles];
+    if (typeof renderAttachedFilesPreview === "function") {
+        renderAttachedFilesPreview();
+    }
+
     state.isEditing = true;
     state.editingParentId = node.parentId;
+    state.editingRole = node.role;
 
     const banner = document.getElementById("editBranchBanner");
     if (banner) banner.classList.remove("hidden");
@@ -1536,6 +1980,7 @@ function editMessage(nodeId) {
 function cancelEditingBranch() {
     state.isEditing = false;
     state.editingParentId = null;
+    state.editingRole = null;
     const banner = document.getElementById("editBranchBanner");
     if (banner) banner.classList.add("hidden");
 }
@@ -1656,6 +2101,54 @@ function renderChatHistory() {
             `;
         }
 
+        let mcpToolCallsHtml = "";
+        if (node.tool_calls && node.tool_calls.length > 0) {
+            mcpToolCallsHtml = node.tool_calls.map((tc, idx) => {
+                const toolName = escapeHtml(tc.function?.name || tc.name || "Unknown Tool");
+
+                // Format Input JSON
+                let toolArgs = tc.function?.arguments || tc.arguments || "{}";
+                try {
+                    toolArgs = JSON.stringify(typeof toolArgs === "string" ? JSON.parse(toolArgs) : toolArgs, null, 2);
+                } catch (e) {}
+
+                // Format Output / Result JSON
+                let toolOutput = tc.result || tc.output || tc.response || "(no output returned)";
+                try {
+                    if (typeof toolOutput === "string" && (toolOutput.trim().startsWith("{") || toolOutput.trim().startsWith("["))) {
+                        toolOutput = JSON.stringify(JSON.parse(toolOutput), null, 2);
+                    } else if (typeof toolOutput === "object") {
+                        toolOutput = JSON.stringify(toolOutput, null, 2);
+                    }
+                } catch (e) {}
+
+                return `
+                    <div class="mcp-tool-block mb-2 border border-sky-500/30 rounded-lg p-2 bg-sky-500/5">
+                        <div class="font-semibold text-xs text-sky-500 flex items-center justify-between pb-1.5 border-b border-sky-500/20">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-screwdriver-wrench"></i> MCP Tool Call: <strong>${toolName}</strong>
+                            </span>
+                            <span class="text-[10px] opacity-70 font-mono">#${idx + 1}</span>
+                        </div>
+                        <div class="mt-2 space-y-2">
+                            <details class="group">
+                                <summary class="cursor-pointer select-none text-[11px] font-medium text-slate-400 hover:text-sky-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-chevron-right text-[9px] group-open:rotate-90 transition-transform"></i> Input Arguments (JSON)
+                                </summary>
+                                <pre class="mt-1 bg-slate-900 text-slate-200 p-2 rounded overflow-x-auto text-[11px] font-mono border border-slate-800"><code>${escapeHtml(toolArgs)}</code></pre>
+                            </details>
+                            <details class="group" open>
+                                <summary class="cursor-pointer select-none text-[11px] font-medium text-slate-400 hover:text-emerald-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-chevron-right text-[9px] group-open:rotate-90 transition-transform"></i> Output / Result (JSON)
+                                </summary>
+                                <pre class="mt-1 bg-slate-900 text-emerald-300 p-2 rounded overflow-x-auto text-[11px] font-mono border border-slate-800"><code>${escapeHtml(toolOutput)}</code></pre>
+                            </details>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
         let branchControls = "";
         if (siblingCount > 1) {
             const parentArg = node.parentId ? `'${node.parentId}'` : "null";
@@ -1672,10 +2165,100 @@ function renderChatHistory() {
             `;
         }
 
-        const formattedContent = MarkdownEditor.parseMarkdownWithMath(
-            node.content || "",
-        );
+        let displayContent = node.content;
 
+        // Target where user/assistant message text is prepared for rendering
+        if (Array.isArray(node.content)) {
+                    const extractedFiles = [];
+
+                    // Extract prompt text and collect file titles
+                    const rawText = node.content
+                        .filter((item) => item.type === "text")
+                        .map((item) => item.text)
+                        .join("\n\n");
+
+                    const fileRegex = /<file\b[^>]*?title="([^"]+)"[^>]*?>([\s\S]*?)<\/file>/gi;
+                    const cleanText = rawText.replace(fileRegex, (match, fileName) => {
+                        extractedFiles.push(fileName || "File");
+                        return ""; // Removes the massive raw JS code body from the chat bubble
+                    }).trim();
+
+                    // Render file pills HTML
+                    let filePillsHtml = "";
+                    if (extractedFiles.length > 0) {
+                        filePillsHtml = `<div class="flex flex-wrap gap-2 mb-2">` +
+                            extractedFiles.map((fileName) => {
+                                const safeName = fileName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                                return `<div class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-200/80 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200 text-xs font-medium rounded-full border border-slate-300/60 dark:border-slate-600/60 shadow-xs">
+                                    <i class="fa-solid fa-file-code text-sky-500 text-[11px]"></i>
+                                    <span>${safeName}</span>
+                                </div>`;
+                            }).join("") +
+                        `</div>`;
+                    }
+
+                    // Process image attachments
+                    const imageItems = node.content
+                        .filter((item) => item.type === "image_url")
+                        .map((item) => `![Attached Image](${item.image_url.url})`)
+                        .join("\n\n");
+
+                    // Build final display content
+                    displayContent = filePillsHtml + cleanText + (imageItems ? `\n\n${imageItems}` : "");
+                }
+
+                const cleanAndReplaceFileTags = (str) => {
+                    if (typeof str !== "string") return "";
+
+                    // Matches code blocks (```...```) or inline code (`...`) to preserve them intact
+                    const codePattern = /```[\s\S]*?```|`[^`\n]+`/g;
+                    // Matches actual file attachment XML tags
+                    const fileRegex = /<file\b[^>]*?title="([^"]+)"[^>]*?>[\s\S]*?<\/file>/gi;
+
+                    // Split string into code segments vs normal text segments
+                    let lastIndex = 0;
+                    let result = "";
+                    let match;
+
+                    while ((match = codePattern.exec(str)) !== null) {
+                        // Process the non-code text preceding this code block
+                        const nonCodeText = str.slice(lastIndex, match.index);
+                        result += nonCodeText.replace(fileRegex, (m, fileName) => {
+                            const titleMatch = m.match(/title="([^"]+)"/i);
+                            const name = titleMatch ? titleMatch[1] : fileName || "Attached File";
+                            return `<div class="inline-flex items-center gap-1.5 px-3 py-1 my-1.5 bg-slate-200/80 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200 text-xs font-medium rounded-full border border-slate-300/60 dark:border-slate-600/60 shadow-xs"><i class="fa-solid fa-file-code text-sky-500 text-[11px]"></i><span>${escapeHtml(name)}</span></div>`;
+                        });
+
+                        // Preserve the code block exactly as-is
+                        result += match[0];
+                        lastIndex = codePattern.lastIndex;
+                    }
+
+                    // Process any remaining non-code text after the last code block
+                    const remainingText = str.slice(lastIndex);
+                    result += remainingText.replace(fileRegex, (m, fileName) => {
+                        const titleMatch = m.match(/title="([^"]+)"/i);
+                        const name = titleMatch ? titleMatch[1] : fileName || "Attached File";
+                        return `<div class="inline-flex items-center gap-1.5 px-3 py-1 my-1.5 bg-slate-200/80 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200 text-xs font-medium rounded-full border border-slate-300/60 dark:border-slate-600/60 shadow-xs"><i class="fa-solid fa-file-code text-sky-500 text-[11px]"></i><span>${escapeHtml(name)}</span></div>`;
+                    });
+
+                    return result;
+                };
+                if (Array.isArray(node.content)) {
+                    displayContent = node.content
+                        .map((item) => {
+                            if (item.type === "text") return cleanAndReplaceFileTags(item.text);
+                            if (item.type === "image_url") return `![Attached Image](${item.image_url.url})`;
+                            return "";
+                        })
+                        .join("\n\n");
+                } else if (typeof node.content === "string") {
+                    displayContent = cleanAndReplaceFileTags(node.content);
+                }
+
+                const formattedContent = MarkdownEditor.parseMarkdownWithMath(
+                    displayContent || "",
+                );
         msgDiv.innerHTML = `
             <div class="flex items-center gap-2 max-w-[85%] sm:max-w-[75%] ${isUser ? "flex-row-reverse" : "flex-row"}">
                 <div class="w-7 h-7 rounded-xl ${isUser ? "bg-sky-500 text-white" : "bg-indigo-600 text-white"} flex items-center justify-center text-xs flex-shrink-0 shadow-sm">
@@ -1686,6 +2269,7 @@ function renderChatHistory() {
                     isUser ? "rounded-tr-xs" : "rounded-tl-xs"
                 }">
                     ${reasoningHtml}
+                    ${mcpToolCallsHtml}
                     <div class="markdown-body">${formattedContent}</div>
                 </div>
             </div>
@@ -1713,7 +2297,119 @@ async function sendMessage() {
     if (!userInputEl) return;
 
     const rawText = MarkdownEditor.getEditorMarkdown(userInputEl);
-    if (!rawText || rawText.trim() === "") return;
+
+    // Stop only if both text AND attached files are missing
+    if (
+        (!rawText || rawText.trim() === "") &&
+        (!attachedFiles || attachedFiles.length === 0)
+    )
+        return;
+
+    // Process text/code files and images separately
+    // 1. Ensure all file contents are fully loaded before constructing the payload
+    const fileReadPromises = attachedFiles.map((f) => {
+        return new Promise((resolve) => {
+            if (f.content || f.dataUrl) return resolve(f);
+
+            const reader = new FileReader();
+            if (f.isImage) {
+                reader.onload = (e) => {
+                    f.dataUrl = e.target.result;
+                    resolve(f);
+                };
+                reader.readAsDataURL(f.fileRaw || f);
+            } else {
+                reader.onload = (e) => {
+                    f.content = e.target.result;
+                    resolve(f);
+                };
+                reader.readAsText(f.fileRaw || f);
+            }
+        });
+    });
+
+    await Promise.all(fileReadPromises);
+
+    // 2. Inject text/code file contents directly into the prompt text
+    let fullTextPrompt = rawText || "";
+    const nonImageFiles = attachedFiles.filter((f) => !f.isImage);
+
+    if (nonImageFiles.length > 0) {
+        const textFileBlocks = nonImageFiles
+            .map(
+                (f) =>
+                    `\n\n<file title="${escapeHtml(f.name)}">\n${(f.content || "").replaceAll("</file>", "&lt;/file&gt;")}\n</file>`,
+            )
+            .join("");
+        fullTextPrompt = (fullTextPrompt + textFileBlocks).trim();
+    }
+
+    // 3. Construct multi-modal array payload
+    const contentPayload = [];
+
+    if (fullTextPrompt) {
+        contentPayload.push({
+            type: "text",
+            text: fullTextPrompt,
+        });
+    }
+
+    const imageFiles = attachedFiles.filter((f) => f.isImage);
+    imageFiles.forEach((f) => {
+        contentPayload.push({
+            type: "image_url",
+            image_url: {
+                url: f.dataUrl,
+            },
+        });
+    });
+
+    // Clear attachments array
+    attachedFiles = [];
+    if (typeof renderAttachedFilesPreview === "function") {
+        renderAttachedFilesPreview();
+    }
+
+    // Use structured content array if images exist, otherwise fallback to plain text string
+    const messageContent =
+        imageFiles.length > 0 ? contentPayload : fullTextPrompt;
+
+    let conv = getActiveConversation();
+    if (!conv) {
+        conv = createNewConversation(true);
+    }
+
+    // If editing an assistant message, update/branch it directly without calling the API
+    if (state.isEditing && state.editingRole === "assistant") {
+        const assistantMsgId = "msg_" + Date.now();
+        const parentId = state.editingParentId;
+
+        const newAssistantNode = {
+            id: assistantMsgId,
+            role: "assistant",
+            content: rawText,
+            reasoning_content: "",
+            parentId: parentId,
+            children: [],
+            activeChildIndex: 0,
+        };
+
+        conv.nodes[assistantMsgId] = newAssistantNode;
+
+        if (parentId && conv.nodes[parentId]) {
+            conv.nodes[parentId].children.push(assistantMsgId);
+            conv.nodes[parentId].activeChildIndex =
+                conv.nodes[parentId].children.length - 1;
+        }
+
+        conv.activeLeafId = assistantMsgId;
+        userInputEl.innerHTML = "";
+        cancelEditingBranch();
+        saveConversationsState();
+        renderSidebarConversations();
+        renderChatHistory();
+        return;
+    }
 
     const provider = getActiveProvider();
     if (
@@ -1729,11 +2425,6 @@ async function sendMessage() {
 
     userInputEl.innerHTML = "";
 
-    let conv = getActiveConversation();
-    if (!conv) {
-        conv = createNewConversation(true);
-    }
-
     if (!conv.rootIds) conv.rootIds = conv.rootId ? [conv.rootId] : [];
 
     if (!conv.rootId) {
@@ -1748,7 +2439,7 @@ async function sendMessage() {
     const newUserNode = {
         id: userMsgId,
         role: "user",
-        content: rawText,
+        content: messageContent,
         reasoning_content: "",
         parentId: parentId,
         children: [],
@@ -1882,68 +2573,111 @@ async function sendMessage() {
             const decoder = new TextDecoder("utf-8");
             let buffer = "";
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split("\n");
-                buffer = lines.pop() || "";
-
-                for (const line of lines) {
-                    const trimmed = line.trim();
-                    if (!trimmed || !trimmed.startsWith("data:")) continue;
-                    if (trimmed === "data: [DONE]") break;
-
-                    try {
-                        const json = JSON.parse(trimmed.substring(5).trim());
-                        const delta = json.choices?.[0]?.delta || {};
-
-                        if (delta.tool_calls) {
-                            for (const tc of delta.tool_calls) {
-                                if (!newAssistantNode.tool_calls)
-                                    newAssistantNode.tool_calls = [];
-                                if (!newAssistantNode.tool_calls[tc.index]) {
-                                    newAssistantNode.tool_calls[tc.index] = {
-                                        id: tc.id,
-                                        type: "function",
-                                        function: { name: "", arguments: "" },
-                                    };
-                                }
-                                if (tc.id)
-                                    newAssistantNode.tool_calls[tc.index].id =
-                                        tc.id;
-                                if (tc.function?.name)
-                                    newAssistantNode.tool_calls[
-                                        tc.index
-                                    ].function.name += tc.function.name;
-                                if (tc.function?.arguments)
-                                    newAssistantNode.tool_calls[
-                                        tc.index
-                                    ].function.arguments +=
-                                        tc.function.arguments;
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        // Flush any remaining bytes left in the decoder
+                        buffer += decoder.decode(new Uint8Array(0), {
+                            stream: false,
+                        });
+                        if (buffer.trim()) {
+                            const finalLines = buffer.split("\n");
+                            for (const line of finalLines) {
+                                const trimmed = line.trim();
+                                if (!trimmed || !trimmed.startsWith("data:"))
+                                    continue;
+                                if (trimmed === "data: [DONE]") continue;
+                                try {
+                                    const json = JSON.parse(
+                                        trimmed.substring(5).trim(),
+                                    );
+                                    const delta =
+                                        json.choices?.[0]?.delta || {};
+                                    if (delta.content) {
+                                        newAssistantNode.content +=
+                                            delta.content;
+                                        renderChatHistory();
+                                    }
+                                } catch (e) {}
                             }
                         }
+                        break;
+                    }
 
-                        if (delta.reasoning_content) {
-                            newAssistantNode.reasoning_content +=
-                                delta.reasoning_content;
-                        } else if (delta.reasoning) {
-                            newAssistantNode.reasoning_content +=
-                                delta.reasoning;
-                        } else if (delta.thinking) {
-                            newAssistantNode.reasoning_content +=
-                                delta.thinking;
-                        }
-                        if (delta.content) {
-                            newAssistantNode.content += delta.content;
-                        }
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n");
+                    // Keep the last partial line in the buffer for the next iteration
+                    buffer = lines.pop() || "";
 
-                        renderChatHistory();
-                    } catch (e) {}
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed || !trimmed.startsWith("data:")) continue;
+                        if (trimmed === "data: [DONE]") continue;
+
+                        try {
+                            const json = JSON.parse(
+                                trimmed.substring(5).trim(),
+                            );
+                            const delta = json.choices?.[0]?.delta || {};
+
+                            if (delta.tool_calls) {
+                                for (const tc of delta.tool_calls) {
+                                    if (!newAssistantNode.tool_calls)
+                                        newAssistantNode.tool_calls = [];
+                                    if (
+                                        !newAssistantNode.tool_calls[tc.index]
+                                    ) {
+                                        newAssistantNode.tool_calls[tc.index] =
+                                            {
+                                                id: tc.id,
+                                                type: "function",
+                                                function: {
+                                                    name: "",
+                                                    arguments: "",
+                                                },
+                                            };
+                                    }
+                                    if (tc.id)
+                                        newAssistantNode.tool_calls[
+                                            tc.index
+                                        ].id = tc.id;
+                                    if (tc.function?.name)
+                                        newAssistantNode.tool_calls[
+                                            tc.index
+                                        ].function.name += tc.function.name;
+                                    if (tc.function?.arguments)
+                                        newAssistantNode.tool_calls[
+                                            tc.index
+                                        ].function.arguments +=
+                                            tc.function.arguments;
+                                }
+                            }
+
+                            if (delta.reasoning_content) {
+                                newAssistantNode.reasoning_content +=
+                                    delta.reasoning_content;
+                            } else if (delta.reasoning) {
+                                newAssistantNode.reasoning_content +=
+                                    delta.reasoning;
+                            } else if (delta.thinking) {
+                                newAssistantNode.reasoning_content +=
+                                    delta.thinking;
+                            }
+
+                            if (delta.content) {
+                                newAssistantNode.content += delta.content;
+                            }
+
+                            renderChatHistory();
+                        } catch (e) {
+                            // Ignore parsing errors on incomplete chunks until the next line completes them
+                        }
+                    }
                 }
+            } catch (streamErr) {
+                console.error("Stream reading error:", streamErr);
             }
-
             if (
                 newAssistantNode.tool_calls &&
                 newAssistantNode.tool_calls.length > 0
@@ -1961,12 +2695,16 @@ async function sendMessage() {
                         args,
                     );
 
+                    // Attach output to call object for UI rendering
+                    call.result = toolResult;
+
                     apiMessages.push({
                         role: "tool",
                         tool_call_id: call.id,
                         content: JSON.stringify(toolResult),
                     });
                 }
+                renderChatHistory();
 
                 const followUpPayload = {
                     model: state.currentModel,
