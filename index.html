@@ -65,65 +65,42 @@
                     <div class="relative flex-1 max-w-xs sm:max-w-sm">
                         <button
                             id="modelSelectBtn"
+                            type="button"
                             onclick="toggleDropdown('modelDropdown')"
-                            class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-xs sm:text-sm font-medium transition outline-none border border-slate-200 dark:border-slate-700"
+                            class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-xs sm:text-sm font-medium transition outline-none border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
                             title="Select Model"
                         >
                             <span class="flex items-center gap-2 truncate">
-                                <i
-                                    class="fa-solid fa-cube text-sky-500 text-xs"
-                                ></i>
-                                <span id="currentModelLabel" class="truncate"
-                                    >Select Model</span
-                                >
+                                <i class="fa-solid fa-cube text-sky-500 text-xs"></i>
+                                <span id="currentModelLabel" class="truncate">Select Model</span>
                             </span>
-                            <i
-                                class="fa-solid fa-chevron-down text-xs text-slate-400"
-                            ></i>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
                         </button>
 
                         <div
                             id="modelDropdown"
-                            class="hidden absolute top-full left-0 mt-2 w-full min-w-[260px] bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-2"
+                            class="hidden absolute top-full left-0 mt-2 w-full min-w-[280px] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-30 p-2 space-y-2"
                         >
-                            <div
-                                class="flex items-center justify-between px-2 py-1 mb-1 border-b border-slate-100 dark:border-slate-800 text-[10px] uppercase font-bold text-slate-400"
-                            >
-                                <span id="modelCountLabel">Models</span>
-                                <button
-                                    onclick="fetchModelsList(true)"
-                                    class="text-sky-500 hover:text-sky-600 p-1"
-                                    title="Refresh Models"
-                                >
-                                    <i
-                                        id="refreshModelsIcon"
-                                        class="fa-solid fa-rotate text-xs"
-                                    ></i>
+                            <div class="flex items-center justify-between px-2 py-1 text-xs text-slate-500 border-b border-slate-100 dark:border-slate-800">
+                                <span id="modelCountLabel" class="font-bold text-[11px] text-slate-400 uppercase">Models</span>
+                                <button onclick="fetchModelsList(true)" class="hover:text-sky-500 text-xs p-1" title="Refresh models list">
+                                    <i id="refreshModelsIcon" class="fa-solid fa-arrows-rotate"></i>
                                 </button>
                             </div>
 
-                            <div
-                                class="px-1 py-1.5 mb-2 border-b border-slate-100 dark:border-slate-800"
-                            >
-                                <div class="relative flex items-center">
-                                    <i
-                                        class="fa-solid fa-magnifying-glass absolute left-2.5 text-xs text-slate-400 pointer-events-none"
-                                    ></i>
-                                    <input
-                                        id="modelSearchInput"
-                                        type="text"
-                                        placeholder="Search models (e.g. gpt)..."
-                                        oninput="renderModelsDropdown()"
-                                        onclick="event.stopPropagation()"
-                                        class="w-full pl-8 pr-2 py-1 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500 transition"
-                                    />
-                                </div>
+                            <div class="relative px-1">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400 pointer-events-none"></i>
+                                <input
+                                    type="text"
+                                    id="modelSearchInput"
+                                    oninput="renderModelsDropdown()"
+                                    onclick="event.stopPropagation()"
+                                    placeholder="Search models..."
+                                    class="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 outline-none focus:border-sky-500 transition"
+                                />
                             </div>
 
-                            <div
-                                id="modelsList"
-                                class="space-y-2 max-h-56 overflow-y-auto pr-1"
-                            ></div>
+                            <div id="modelsList" class="max-h-60 overflow-y-auto space-y-1 pr-1"></div>
                         </div>
                     </div>
                 </div>
@@ -142,10 +119,10 @@
             <div
                 class="relative flex-1 min-h-0 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-inner overflow-hidden flex flex-row"
             >
-                <aside
-                    id="chatSidebar"
-                    class="w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 flex flex-col h-full transition-all duration-200 z-30"
-                >
+            <aside
+                id="chatSidebar"
+                class="w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 flex flex-col h-full transition-all duration-200 z-40"
+            >
                     <div
                         class="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 flex-shrink-0"
                     >
@@ -189,7 +166,6 @@
                     <footer
                         class="absolute bottom-0 left-0 right-0 p-2 sm:p-4 bg-gradient-to-t from-white via-white/95 to-transparent dark:from-slate-900 dark:via-slate-900/95 dark:to-transparent z-10 flex flex-col gap-2"
                     >
-                        <!-- Branching Edit Banner Indicator -->
                         <div
                             id="editBranchBanner"
                             class="hidden flex items-center justify-between px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-xs text-indigo-500 font-semibold"
@@ -396,11 +372,47 @@
                             >
                                 <i class="fa-solid fa-terminal"></i>
                             </button>
+                            <button
+                                id="Bar-Blockquote"
+                                onmousedown="event.preventDefault()"
+                                onclick="MarkdownEditor.applyWYSIWYG('blockquote')"
+                                class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
+                                title="Blockquote"
+                            >
+                                <i class="fa-solid fa-quote-right text-[10px]"></i>
+                            </button>
                         </div>
+
+                        <!-- Attached Files Preview Container -->
+                        <div
+                            id="attachedFilesPreview"
+                            class="hidden flex flex-wrap gap-2 px-1 py-1"
+                        ></div>
 
                         <div
                             class="relative flex items-end gap-2 p-2 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl focus-within:ring-2 focus-within:ring-sky-500/50 transition"
                         >
+                            <button
+                                type="button"
+                                onclick="
+                                    document
+                                        .getElementById('fileAttachmentInput')
+                                        .click()
+                                "
+                                class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition flex-shrink-0 mb-0.5"
+                                title="Attach Files (Images, Text, Code)"
+                            >
+                                <i class="fa-solid fa-paperclip text-sm"></i>
+                            </button>
+                            <input
+                                type="file"
+                                id="fileAttachmentInput"
+                                multiple
+                                accept="image/*,text/*,.js,.ts,.py,.json,.css,.html,.c,.cpp,.java,.md,.csv,.xml"
+                                onchange="handleFileUpload(event)"
+                                class="hidden"
+                            />
+
                             <div
                                 id="userInput"
                                 contenteditable="true"
@@ -417,7 +429,6 @@
                                 <i class="fa-solid fa-paper-plane text-xs"></i>
                             </button>
                         </div>
-
                         <div
                             id="activeParamsContainer"
                             class="flex flex-wrap items-center gap-2 pt-1 min-h-[28px]"
@@ -637,6 +648,14 @@
                                     class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
                                 >
                                     <i class="fa-solid fa-code text-[10px]"></i>
+                                </button>
+                                <button
+                                    onmousedown="event.preventDefault()"
+                                    onclick="MarkdownEditor.applyBlockquote()"
+                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
+                                    title="Blockquote"
+                                >
+                                    <i class="fa-solid fa-quote-right text-[10px]"></i>
                                 </button>
                             </div>
 
@@ -879,6 +898,7 @@
                                         >
                                         <select
                                             id="newMcpType"
+                                            onchange="toggleMcpTypeFields()"
                                             class="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500"
                                         >
                                             <option value="SSE">
@@ -890,14 +910,14 @@
                                             <option value="HTTP">
                                                 HTTP Endpoint
                                             </option>
-                                            <option value="Custom">
-                                                Custom Tool
+                                            <option value="WebMCP">
+                                                WebMCP Script
                                             </option>
                                         </select>
                                     </div>
                                 </div>
 
-                                <div>
+                                <div id="mcpUrlGroup">
                                     <label
                                         class="block text-[10px] text-slate-400 mb-0.5"
                                         >Server URL or CLI Command</label
@@ -908,6 +928,19 @@
                                         placeholder="https://mcp.example.com/sse or npx -y @modelcontextprotocol/server-..."
                                         class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500 font-mono"
                                     />
+                                </div>
+
+                                <div id="mcpWebMcpGroup" class="hidden">
+                                    <label
+                                        class="block text-[10px] text-slate-400 mb-0.5"
+                                        >WebMCP Script Function (`inputSchema` & `execute`)</label
+                                    >
+                                    <textarea
+                                        id="newWebMcpScript"
+                                        rows="6"
+                                        placeholder='{\n  inputSchema: {\n    type: "object",\n    properties: {\n      PARAM_NAME: { type: "string", description: "Param info" }\n    },\n    required: ["PARAM_NAME"]\n  },\n  execute: async (input) => {\n    return { success: true, data: input.PARAM_NAME };\n  }\n}'
+                                        class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500 font-mono resize-none"
+                                    ></textarea>
                                 </div>
 
                                 <div>
@@ -921,6 +954,20 @@
                                         placeholder="Brief description of functions provided by this tool..."
                                         class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500"
                                     />
+                                </div>
+
+                                <div id="mcpJsonGroup">
+                                    <label
+                                        class="block text-[10px] text-slate-400 mb-0.5"
+                                        >Custom JSON Config (Optional Headers &
+                                        Body)</label
+                                    >
+                                    <textarea
+                                        id="newMcpJson"
+                                        rows="3"
+                                        placeholder='{\n  "headers": {\n    "Authorization": "Bearer YOUR_KEY"\n  },\n  "body": {\n    "customParam": "value"\n  }\n}'
+                                        class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500 font-mono resize-none"
+                                    ></textarea>
                                 </div>
 
                                 <button
@@ -1021,7 +1068,6 @@
                 </div>
             </div>
         </div>
-        <script src="https://js.puter.com/v2/puter.js" defer></script>
         <script src="markdown-editor.js" defer></script>
         <script src="main.js" defer></script>
     </body>
