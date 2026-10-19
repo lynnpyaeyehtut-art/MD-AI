@@ -29,24 +29,36 @@ const MarkdownEditor = {
     trackSelection() {
         const editor = this.getActiveEditor();
         const sel = window.getSelection();
+        let valid = false;
         if (sel && sel.rangeCount > 0) {
             const range = sel.getRangeAt(0);
             if (
                 editor &&
                 (editor.contains(range.commonAncestorContainer) ||
-                    editor === range.commonAncestorContainer)
+                    editor === range.commonAncestorContainer) &&
+                !range.collapsed &&
+                range.toString().trim().length > 0
             ) {
-                if (!range.collapsed && range.toString().trim().length > 0) {
-                    this.lastSelectionRange = range.cloneRange();
-                }
+                this.lastSelectionRange = range.cloneRange();
+                valid = true;
             }
         }
+        if (!valid) this.lastSelectionRange = null;
         this.updateDynamicToolbar();
     },
 
     restoreSelection() {
+        const editor = this.getActiveEditor();
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            const liveInEditor =
+                editor &&
+                (editor.contains(range.commonAncestorContainer) ||
+                    editor === range.commonAncestorContainer);
+            if (liveInEditor) return;
+        }
         if (this.lastSelectionRange) {
-            const sel = window.getSelection();
             sel.removeAllRanges();
             sel.addRange(this.lastSelectionRange);
         }
@@ -60,21 +72,22 @@ const MarkdownEditor = {
         const editor = this.getActiveEditor();
         if (!anchorNode || !editor || !editor.contains(anchorNode)) return;
 
+        // Fix: explicitly check closest table container from node or its parent element
+        const targetEl =
+            anchorNode.nodeType === Node.TEXT_NODE
+                ? anchorNode.parentNode
+                : anchorNode;
+        const tableNode = targetEl.closest
+            ? targetEl.closest("table, td, th, tr")
+            : this.getClosestTagNode(anchorNode, ["table", "td", "th", "tr"]);
+
         const isSelectionActive =
             !sel.isCollapsed && sel.toString().trim().length > 0;
-
         const codeBlockNode = this.getClosestTagNode(anchorNode, [
             "pre",
             "code",
         ]);
         const isInsidePre = this.getClosestTagNode(anchorNode, ["pre"]);
-
-        const tableNode = this.getClosestTagNode(anchorNode, [
-            "table",
-            "td",
-            "th",
-            "tr",
-        ]);
 
         const selectionGroup = [
             "Bar-Bold",
@@ -82,6 +95,9 @@ const MarkdownEditor = {
             "Bar-Hightlight Text",
             "Bar-Strikethrough",
             "Bar-Inline Code",
+            "Bar-Subscript",
+            "Bar-Superscript",
+            "Bar-Blockquote",
         ];
         const startLineGroup = [
             "Bar-H1",
@@ -104,9 +120,7 @@ const MarkdownEditor = {
         const setGroupVisibility = (ids, visible) => {
             ids.forEach((id) => {
                 const el = document.getElementById(id);
-                if (el) {
-                    el.style.display = visible ? "" : "none";
-                }
+                if (el) el.style.display = visible ? "" : "none";
             });
         };
 
@@ -118,25 +132,10 @@ const MarkdownEditor = {
             return;
         }
 
-        let showSelection = isSelectionActive;
-        let showStartLine = false;
-        let showMiddle = false;
         let showTable = !!tableNode;
-
-        if (tableNode) {
-            showSelection = isSelectionActive;
-            showStartLine = false;
-            showMiddle = false;
-            showTable = true;
-        } else if (isSelectionActive) {
-            showSelection = true;
-            showStartLine = false;
-            showMiddle = false;
-        } else {
-            showSelection = false;
-            showStartLine = true;
-            showMiddle = true;
-        }
+        let showSelection = isSelectionActive;
+        let showStartLine = !showTable && !isSelectionActive;
+        let showMiddle = !showTable && !isSelectionActive;
 
         setGroupVisibility(selectionGroup, showSelection);
         setGroupVisibility(startLineGroup, showStartLine);
@@ -199,6 +198,168 @@ const MarkdownEditor = {
             }
             parent.removeChild(target);
             parent.normalize();
+
+            const sel = window.getSelection();
+            if (sel) {
+                const range = document.createRange();
+                range.selectNodeContents(parent);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    },
+
+    rangeIsFullyFormatted(range, tagNames) {
+        const common = range.commonAncestorContainer;
+        const root =
+            common.nodeType === Node.TEXT_NODE ? common.parentNode : common;
+        if (!root) return false;
+
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+        let node;
+        let found = false;
+        while ((node = walker.nextNode())) {
+            if (!node.textContent) continue;
+            if (!range.intersectsNode(node)) continue;
+            found = true;
+            if (!this.getClosestTagNode(node, tagNames)) return false;
+        }
+        return found;
+    },
+
+    unwrapElement(el) {
+        const parent = el.parentNode;
+        while (el.firstChild) parent.insertBefore(el.firstChild, el);
+        parent.removeChild(el);
+        parent.normalize();
+    },
+
+    splitFormattingAtPoint(container, offset, tagNames) {
+        const fmt = this.getClosestTagNode(container, tagNames);
+        if (!fmt) return null;
+        if (container === fmt && offset === fmt.childNodes.length) return null;
+
+        const tail = document.createRange();
+        try {
+            tail.setStart(container, offset);
+            tail.setEnd(fmt, fmt.childNodes.length);
+        } catch (e) {
+            return null;
+        }
+        if (tail.collapsed) return null;
+
+        const frag = tail.extractContents();
+        if (!frag.hasChildNodes()) return null;
+
+        const clone = fmt.cloneNode(false);
+        clone.appendChild(frag);
+        fmt.parentNode.insertBefore(clone, fmt.nextSibling);
+
+        const boundary = document.createRange();
+        boundary.setStartAfter(fmt);
+        boundary.collapse(true);
+        return boundary;
+    },
+
+    wrapRangeWithFormat(range, tagNames, createElementFn) {
+        const contents = range.extractContents();
+        tagNames.forEach((tagName) => {
+            contents.querySelectorAll(tagName).forEach((el) => {
+                const parent = el.parentNode;
+                while (el.firstChild) parent.insertBefore(el.firstChild, el);
+                parent.removeChild(el);
+            });
+        });
+
+        const elem = createElementFn();
+        elem.appendChild(contents);
+        range.insertNode(elem);
+
+        const newRange = document.createRange();
+        newRange.selectNodeContents(elem);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+    },
+
+    removeFormattingFromRange(range, tagNames) {
+        const editor = this.getActiveEditor();
+        const contents = range.extractContents();
+        tagNames.forEach((tagName) => {
+            contents.querySelectorAll(tagName).forEach((el) => {
+                const parent = el.parentNode;
+                while (el.firstChild) parent.insertBefore(el.firstChild, el);
+                parent.removeChild(el);
+            });
+        });
+
+        const inserted = Array.from(contents.childNodes);
+
+        let insertRange = range;
+        const fmt = this.getClosestTagNode(range.startContainer, tagNames);
+        if (fmt) {
+            if (fmt.textContent === "" ) {
+                const parent = fmt.parentNode;
+                const ref = fmt.nextSibling;
+                parent.removeChild(fmt);
+                insertRange = document.createRange();
+                if (ref) {
+                    insertRange.setStartBefore(ref);
+                } else {
+                    insertRange.selectNodeContents(parent);
+                    insertRange.collapse(false);
+                }
+                insertRange.collapse(true);
+            } else {
+                insertRange =
+                    this.splitFormattingAtPoint(
+                        range.startContainer,
+                        range.startOffset,
+                        tagNames,
+                    ) || range;
+            }
+        }
+
+        insertRange.insertNode(contents);
+
+        if (editor) {
+            editor.querySelectorAll(tagNames.join(",")).forEach((el) => {
+                if (!el.textContent && !el.querySelector("img")) el.remove();
+            });
+        }
+
+        if (inserted.length) {
+            const newRange = document.createRange();
+            newRange.setStartBefore(inserted[0]);
+            newRange.setEndAfter(inserted[inserted.length - 1]);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(newRange);
+        }
+    },
+
+    toggleFormatting(tagNames, createElementFn) {
+        const sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+
+        if (sel.isCollapsed) {
+            const existing = this.getClosestTagNode(sel.anchorNode, tagNames);
+            if (existing) this.unwrapFormatting(sel.anchorNode, tagNames);
+            return;
+        }
+
+        const range = sel.getRangeAt(0);
+        const startFmt = this.getClosestTagNode(range.startContainer, tagNames);
+        const endFmt = this.getClosestTagNode(range.endContainer, tagNames);
+        const fullyFormatted =
+            !!startFmt &&
+            !!endFmt &&
+            this.rangeIsFullyFormatted(range, tagNames);
+
+        if (fullyFormatted) {
+            this.removeFormattingFromRange(range, tagNames);
+        } else {
+            this.wrapRangeWithFormat(range, tagNames, createElementFn);
         }
     },
 
@@ -218,103 +379,27 @@ const MarkdownEditor = {
 
         switch (type) {
             case "bold": {
-                const existing = this.getClosestTagNode(anchorNode, [
-                    "strong",
-                    "b",
-                ]);
-                if (existing) {
-                    this.unwrapFormatting(anchorNode, ["strong", "b"]);
-                } else if (!sel.isCollapsed) {
-                    const range = sel.getRangeAt(0);
-                    const strong = document.createElement("strong");
-                    try {
-                        strong.appendChild(range.extractContents());
-                        range.insertNode(strong);
-                        const newRange = document.createRange();
-                        newRange.selectNodeContents(strong);
-                        sel.removeAllRanges();
-                        sel.addRange(newRange);
-                    } catch (e) {
-                        document.execCommand("bold");
-                    }
-                } else {
-                    document.execCommand("bold");
-                }
+                document.execCommand("bold");
                 break;
             }
             case "highlight": {
-                const existing = this.getClosestTagNode(anchorNode, ["mark"]);
-                if (existing) {
-                    this.unwrapFormatting(anchorNode, ["mark"]);
-                } else if (!sel.isCollapsed) {
-                    const range = sel.getRangeAt(0);
-                    const mark = document.createElement("mark");
-                    try {
-                        mark.appendChild(range.extractContents());
-                        range.insertNode(mark);
-                        const newRange = document.createRange();
-                        newRange.selectNodeContents(mark);
-                        sel.removeAllRanges();
-                        sel.addRange(newRange);
-                    } catch (e) {
-                        document.execCommand(
-                            "insertHTML",
-                            false,
-                            `<mark>${range.toString()}</mark>`,
-                        );
-                    }
-                }
+                this.toggleFormatting(["mark"], () => document.createElement("mark"));
                 break;
             }
             case "italic": {
-                const existing = this.getClosestTagNode(anchorNode, [
-                    "em",
-                    "i",
-                ]);
-                if (existing) {
-                    this.unwrapFormatting(anchorNode, ["em", "i"]);
-                } else if (!sel.isCollapsed) {
-                    const range = sel.getRangeAt(0);
-                    const em = document.createElement("em");
-                    try {
-                        em.appendChild(range.extractContents());
-                        range.insertNode(em);
-                        const newRange = document.createRange();
-                        newRange.selectNodeContents(em);
-                        sel.removeAllRanges();
-                        sel.addRange(newRange);
-                    } catch (e) {
-                        document.execCommand("italic");
-                    }
-                } else {
-                    document.execCommand("italic");
-                }
+                document.execCommand("italic");
+                break;
+            }
+            case "sub": {
+                document.execCommand("subscript");
+                break;
+            }
+            case "sup": {
+                document.execCommand("superscript");
                 break;
             }
             case "strike": {
-                const existing = this.getClosestTagNode(anchorNode, [
-                    "strike",
-                    "s",
-                    "del",
-                ]);
-                if (existing) {
-                    this.unwrapFormatting(anchorNode, ["strike", "s", "del"]);
-                } else if (!sel.isCollapsed) {
-                    const range = sel.getRangeAt(0);
-                    const strike = document.createElement("strike");
-                    try {
-                        strike.appendChild(range.extractContents());
-                        range.insertNode(strike);
-                        const newRange = document.createRange();
-                        newRange.selectNodeContents(strike);
-                        sel.removeAllRanges();
-                        sel.addRange(newRange);
-                    } catch (e) {
-                        document.execCommand("strikeThrough");
-                    }
-                } else {
-                    document.execCommand("strikeThrough");
-                }
+                document.execCommand("strikeThrough");
                 break;
             }
             case "ul":
@@ -339,22 +424,81 @@ const MarkdownEditor = {
                     '<ul style="list-style-type:none"><li class="flex items-center gap-2"><input type="checkbox" class="mr-1" /> Task item</li></ul>',
                 );
                 break;
-            case "table":
-                document.execCommand(
-                    "insertHTML",
-                    false,
-                    "<table><thead><tr><th>Header 1</th><th>Header 2</th></tr></thead><tbody><tr><td>Cell 1</td><td>Cell 2</td></tr></tbody></table><p><br></p>",
+            case "table": {
+                const editor = this.getActiveEditor();
+                if (!editor) return;
+                editor.focus();
+
+                const sel = window.getSelection();
+                let range;
+
+                if (
+                    sel &&
+                    sel.rangeCount > 0 &&
+                    editor.contains(sel.anchorNode)
+                ) {
+                    range = sel.getRangeAt(0);
+                } else {
+                    range = document.createRange();
+                    range.selectNodeContents(editor);
+                    range.collapse(false);
+                }
+
+                const tableHtml =
+                    '<table class="border-collapse border border-gray-700 my-2"><thead><tr><th class="border border-gray-700 p-2">Header 1</th><th class="border border-gray-700 p-2">Header 2</th></tr></thead><tbody><tr><td class="border border-gray-700 p-2">Cell 1</td><td class="border border-gray-700 p-2">Cell 2</td></tr></tbody></table>';
+
+                const div = document.createElement("div");
+                div.innerHTML = tableHtml;
+                const tableElem = div.firstElementChild;
+
+                const trailingP = document.createElement("p");
+                trailingP.innerHTML = "<br>";
+
+                range.deleteContents();
+                let blockContainer = this.getClosestTagNode(
+                    range.startContainer,
+                    ["p", "div", "h1", "h2", "h3", "h4", "li"],
                 );
+
+                if (blockContainer && blockContainer !== editor) {
+                    blockContainer.parentNode.insertBefore(
+                        tableElem,
+                        blockContainer.nextSibling,
+                    );
+                    tableElem.parentNode.insertBefore(
+                        trailingP,
+                        tableElem.nextSibling,
+                    );
+                } else {
+                    editor.appendChild(tableElem);
+                    editor.appendChild(trailingP);
+                }
+
+                const firstTd = tableElem.querySelector("td, th");
+                if (firstTd) {
+                    const newRange = document.createRange();
+                    newRange.setStart(firstTd, 0);
+                    newRange.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(newRange);
+                }
                 break;
+            }
             case "addRow": {
-                const tr = anchorNode
-                    ? this.getClosestTagNode(anchorNode, ["tr"])
-                    : null;
+                const cell =
+                    this.getClosestTagNode(anchorNode, ["td", "th"]) ||
+                    (anchorNode.nodeType === 1
+                        ? anchorNode.querySelector("td, th")
+                        : null);
+                const tr = cell ? cell.closest("tr") : null;
                 if (tr) {
                     const newTr = document.createElement("tr");
-                    for (let i = 0; i < tr.children.length; i++) {
+                    const cellCount = tr.children.length;
+                    for (let i = 0; i < cellCount; i++) {
                         const newTd = document.createElement("td");
-                        newTd.innerHTML = "Cell content";
+                        newTd.className =
+                            "px-4 py-2.5 whitespace-nowrap text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-800";
+                        newTd.innerHTML = "Cell";
                         newTr.appendChild(newTd);
                     }
                     tr.parentNode.insertBefore(newTr, tr.nextSibling);
@@ -362,111 +506,253 @@ const MarkdownEditor = {
                 break;
             }
             case "addCol": {
-                const table = anchorNode
-                    ? this.getClosestTagNode(anchorNode, ["table"])
-                    : null;
+                const cell =
+                    this.getClosestTagNode(anchorNode, ["td", "th"]) ||
+                    (anchorNode.nodeType === 1
+                        ? anchorNode.querySelector("td, th")
+                        : null);
+                const table = cell
+                    ? cell.closest("table")
+                    : document.querySelector("table");
                 if (table) {
-                    table.querySelectorAll("tr").forEach((row, idx) => {
-                        const cell = document.createElement(
-                            idx === 0 ? "th" : "td",
+                    table.querySelectorAll("tr").forEach((row) => {
+                        const isHeader =
+                            row.querySelector("th") !== null &&
+                            row.querySelectorAll("th").length ===
+                                row.children.length;
+                        const newCell = document.createElement(
+                            isHeader ? "th" : "td",
                         );
-                        cell.innerHTML = idx === 0 ? "Header" : "Cell";
-                        row.appendChild(cell);
+                        if (isHeader) {
+                            newCell.className =
+                                "px-4 py-2.5 bg-gray-50 dark:bg-gray-800 font-semibold text-gray-900 dark:text-white uppercase tracking-wider text-xs border-b border-gray-200 dark:border-gray-700";
+                            newCell.innerHTML = "Header";
+                        } else {
+                            newCell.className =
+                                "px-4 py-2.5 whitespace-nowrap text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-800";
+                            newCell.innerHTML = "Cell";
+                        }
+                        row.appendChild(newCell);
                     });
                 }
                 break;
             }
             case "delRow": {
-                const tr = anchorNode
-                    ? this.getClosestTagNode(anchorNode, ["tr"])
-                    : null;
-                if (tr) tr.remove();
+                const cell =
+                    this.getClosestTagNode(anchorNode, ["td", "th"]) ||
+                    (anchorNode.nodeType === 1
+                        ? anchorNode.querySelector("td, th")
+                        : null);
+                const tr = cell ? cell.closest("tr") : null;
+                if (tr) {
+                    const table = tr.closest("table");
+                    if (table && table.querySelectorAll("tr").length > 1) {
+                        tr.remove();
+                    }
+                }
                 break;
             }
             case "delCol": {
-                const td = anchorNode
-                    ? this.getClosestTagNode(anchorNode, ["td", "th"])
-                    : null;
-                if (td) {
-                    const colIdx = Array.from(
-                        td.parentElement.children,
-                    ).indexOf(td);
-                    const table = td.closest("table");
+                const cell =
+                    this.getClosestTagNode(anchorNode, ["td", "th"]) ||
+                    (anchorNode.nodeType === 1
+                        ? anchorNode.querySelector("td, th")
+                        : null);
+                if (cell) {
+                    const row = cell.parentElement;
+                    const colIdx = Array.from(row.children).indexOf(cell);
+                    const table = cell.closest("table");
                     if (table && colIdx !== -1) {
-                        table
-                            .querySelectorAll("tr")
-                            .forEach((r) => r.children[colIdx]?.remove());
+                        const allRows = table.querySelectorAll("tr");
+                        if (allRows[0] && allRows[0].children.length > 1) {
+                            allRows.forEach((r) => {
+                                if (r.children[colIdx]) {
+                                    r.children[colIdx].remove();
+                                }
+                            });
+                        }
                     }
                 }
                 break;
             }
             case "inlineCode": {
-                const existing = this.getClosestTagNode(anchorNode, ["code"]);
-                if (existing && !this.getClosestTagNode(anchorNode, ["pre"])) {
-                    this.unwrapFormatting(anchorNode, ["code"]);
+                const preNode = this.getClosestTagNode(anchorNode, ["pre"]);
+                if (!preNode) {
+                    this.toggleFormatting(["code"], () => {
+                        const code = document.createElement("code");
+                        code.className = "bg-gray-800 text-current font-mono px-1 py-0.5 rounded text-sm";
+                        return code;
+                    });
+                }
+                break;
+            }
+            case "blockquote": {
+                const existing = this.getClosestTagNode(anchorNode, ["blockquote"]);
+                if (existing) {
+                    this.unwrapFormatting(anchorNode, ["blockquote"]);
                 } else if (!sel.isCollapsed) {
                     const range = sel.getRangeAt(0);
-                    const code = document.createElement("code");
-                    code.className =
-                        "bg-gray-800 text-current font-mono px-1 py-0.5 rounded text-sm";
+                    const bq = document.createElement("blockquote");
+                    bq.className = "border-l-4 border-slate-300 dark:border-slate-600 pl-3 my-2 text-slate-600 dark:text-slate-400 italic";
                     try {
-                        code.appendChild(range.extractContents());
-                        range.insertNode(code);
+                        bq.appendChild(range.extractContents());
+                        range.insertNode(bq);
                         const newRange = document.createRange();
-                        newRange.selectNodeContents(code);
+                        newRange.selectNodeContents(bq);
                         sel.removeAllRanges();
                         sel.addRange(newRange);
                     } catch (e) {
-                        document.execCommand(
-                            "insertHTML",
-                            false,
-                            `<code class="bg-gray-800 text-current font-mono px-1 py-0.5 rounded text-sm">${range.toString()}</code>`,
-                        );
+                        document.execCommand("formatBlock", false, "blockquote");
                     }
                 } else {
-                    document.execCommand(
-                        "insertHTML",
-                        false,
-                        '<code class="bg-gray-800 text-current font-mono px-1 py-0.5 rounded text-sm">code</code>',
-                    );
+                    document.execCommand("formatBlock", false, "blockquote");
                 }
                 break;
             }
             case "codeBlock":
             case "code": {
                 const selectedText = sel.toString() || "// Write code here";
-                const wrapperHtml = `
-                    <div class="code-block-wrapper my-2 border border-gray-700 rounded overflow-hidden" contenteditable="false">
-                        <div class="code-block-header bg-gray-800 text-gray-300 text-xs px-3 py-1.5 flex justify-between items-center select-none border-b border-gray-700">
-                            <div class="flex items-center gap-2">
-                                <select onchange="MarkdownEditor.changeLanguage(this)" class="bg-gray-900 text-gray-300 border border-gray-700 rounded px-1.5 py-0.5 text-xs font-mono focus:outline-none focus:border-gray-500">
-                                    <option value="javascript">javascript</option>
-                                    <option value="python">python</option>
-                                    <option value="html">html</option>
-                                    <option value="css">css</option>
-                                    <option value="json">json</option>
-                                    <option value="sql">sql</option>
-                                    <option value="bash">bash</option>
-                                    <option value="markdown">markdown</option>
-                                    <option value="plaintext">plaintext</option>
-                                </select>
-                            </div>
-                            <div class="flex gap-2" contenteditable="false">
-                                <button type="button" onclick="MarkdownEditor.toggleCodeCollapse(this)" class="hover:text-white p-1 rounded transition-colors" title="Collapse / Expand">
-                                    <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </button>
-                                <button type="button" onclick="MarkdownEditor.copyCode(this)" class="hover:text-white p-1 rounded transition-colors" title="Copy Code">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <pre class="m-0 rounded-none border-0 p-3 bg-gray-900 text-gray-200 font-mono text-sm overflow-x-auto" contenteditable="true"><code class="language-javascript">${selectedText}</code></pre>
-                    </div>
-                    <p><br></p>
-                `;
-                document.execCommand("insertHTML", false, wrapperHtml);
+
+                const selRange = sel.rangeCount > 0 ? sel.getRangeAt(0) : null;
+                const targetNode = anchorNode || (selRange ? selRange.startContainer : null);
+
+                let currentBlock = targetNode
+                    ? this.getClosestTagNode(targetNode, [
+                          "p",
+                          "div",
+                          "h1",
+                          "h2",
+                          "h3",
+                          "h4",
+                          "li",
+                      ])
+                    : null;
+
+                if (!currentBlock && selRange && (targetNode === editor || editor.contains(targetNode))) {
+                    const childNodes = Array.from(editor.childNodes);
+                    currentBlock =
+                        childNodes[selRange.startOffset] ||
+                        (selRange.startContainer.nodeType === Node.ELEMENT_NODE
+                            ? selRange.startContainer.children[selRange.startOffset]
+                            : null);
+                }
+
+                const wrapper = document.createElement("div");
+                wrapper.className =
+                    "code-block-wrapper my-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 shadow-sm";
+                wrapper.setAttribute("contenteditable", "false");
+
+                wrapper.innerHTML = `
+                                    <div class="code-block-header bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs px-3 py-1.5 flex justify-between items-center select-none border-b border-gray-200 dark:border-gray-700">
+                                        <div class="flex items-center gap-2">
+                                            <select onchange="MarkdownEditor.changeLanguage(this)" class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded px-1.5 py-0.5 text-xs font-mono focus:outline-none focus:border-gray-500">
+                                                <option value="javascript">javascript</option>
+                                                <option value="python">python</option>
+                                                <option value="html">html</option>
+                                                <option value="css">css</option>
+                                                <option value="json">json</option>
+                                                <option value="sql">sql</option>
+                                                <option value="bash">bash</option>
+                                                <option value="markdown">markdown</option>
+                                                <option value="plaintext">plaintext</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <button type="button" onclick="MarkdownEditor.toggleCodeCollapse(this)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors" title="Collapse / Expand">
+                                                <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            </button>
+                                            <button type="button" onclick="MarkdownEditor.copyCode(this)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors" title="Copy Code">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2/2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <pre class="m-0 rounded-none border-0 p-3 bg-transparent text-gray-800 dark:text-gray-200 font-mono text-sm overflow-x-auto" contenteditable="true"><code class="language-javascript bg-transparent p-0 text-current"></code></pre>`;
+                const codeNode = wrapper.querySelector("code");
+                codeNode.textContent = selectedText;
+
+                const trailingParagraph = document.createElement("p");
+                trailingParagraph.innerHTML = "<br>";
+
+                if (currentBlock && currentBlock !== editor) {
+                    currentBlock.parentNode.insertBefore(
+                        wrapper,
+                        currentBlock.nextSibling,
+                    );
+                    currentBlock.parentNode.insertBefore(
+                        trailingParagraph,
+                        wrapper.nextSibling,
+                    );
+
+                    if (
+                        !currentBlock.textContent.trim() ||
+                        currentBlock.innerHTML === "<br>"
+                    ) {
+                        currentBlock.remove();
+                    }
+                } else {
+                    const range = sel.getRangeAt(0);
+                    range.deleteContents();
+                    range.insertNode(wrapper);
+                    wrapper.parentNode.insertBefore(
+                        trailingParagraph,
+                        wrapper.nextSibling,
+                    );
+                }
+
+                const newRange = document.createRange();
+                newRange.selectNodeContents(codeNode);
+                newRange.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(newRange);
                 break;
             }
+        }
+    },
+
+    handlePaste(event) {
+        const items = (event.clipboardData || event.originalEvent.clipboardData)
+            .items;
+        let imageFile = null;
+
+        for (const item of items) {
+            if (item.type.indexOf("image") === 0) {
+                imageFile = item.getAsFile();
+                break;
+            }
+        }
+
+        if (imageFile) {
+            event.preventDefault();
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64Data = e.target.result;
+                const editor = this.getActiveEditor();
+                if (!editor) return;
+
+                editor.focus();
+                const sel = window.getSelection();
+                if (!sel || !sel.rangeCount) return;
+
+                const range = sel.getRangeAt(0);
+                range.deleteContents();
+
+                const img = document.createElement("img");
+                img.src = base64Data;
+                img.className =
+                    "max-w-full h-auto my-2 rounded border border-gray-700";
+
+                const p = document.createElement("p");
+                p.appendChild(img);
+
+                range.insertNode(p);
+
+                const newRange = document.createRange();
+                newRange.setStartAfter(p);
+                newRange.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(newRange);
+            };
+            reader.readAsDataURL(imageFile);
         }
     },
 
@@ -502,6 +788,7 @@ const MarkdownEditor = {
             if (textContent.trim() === "" || isFullSelection) {
                 event.preventDefault();
                 const wrapper = codeElem.closest(".code-block-wrapper");
+
                 if (wrapper) {
                     const nextElem = wrapper.nextElementSibling;
                     if (
@@ -528,6 +815,17 @@ const MarkdownEditor = {
                         sel.removeAllRanges();
                         sel.addRange(range);
                     }
+                } else {
+                    const parent = codeElem.parentNode;
+                    const textNode = document.createTextNode("");
+                    parent.insertBefore(textNode, codeElem);
+                    codeElem.remove();
+
+                    const range = document.createRange();
+                    range.setStart(textNode, 0);
+                    range.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
                 }
                 return;
             }
@@ -553,6 +851,16 @@ const MarkdownEditor = {
         if (event.key === "Enter") {
             if (event.target && event.target.id === "systemPromptInput") return;
 
+            // Ctrl + Enter: Send message
+            if (event.ctrlKey) {
+                event.preventDefault();
+                if (typeof sendMessage === "function") {
+                    sendMessage();
+                }
+                return;
+            }
+
+            // Shift + Enter inside headings: Break out into a new paragraph
             if (event.shiftKey && heading) {
                 event.preventDefault();
                 const newElem = document.createElement("p");
@@ -567,15 +875,7 @@ const MarkdownEditor = {
                 return;
             }
 
-            if (!event.shiftKey) {
-                if (!li) {
-                    event.preventDefault();
-                    if (typeof sendMessage === "function") {
-                        sendMessage();
-                    }
-                }
-                return;
-            }
+            // Regular Enter or Shift + Enter: Allow default contenteditable line-break behavior
         }
 
         if (event.key === "Backspace" && li) {
@@ -596,6 +896,48 @@ const MarkdownEditor = {
                 document.execCommand("outdent");
             }
         }
+    },
+
+    cleanupEmptyInlineFormats() {
+        const editor = this.getActiveEditor();
+        if (!editor) return;
+
+        const inlineTags = [
+            "mark",
+            "strong",
+            "b",
+            "i",
+            "em",
+            "sub",
+            "sup",
+            "s",
+            "strike",
+            "del",
+            "code",
+        ];
+
+        editor.querySelectorAll(inlineTags.join(",")).forEach((el) => {
+            if (el.closest("pre") || el.closest(".code-block-wrapper")) return;
+            if (el.querySelector("img")) return;
+            if (el.textContent.trim() !== "") return;
+
+            const parent = el.parentNode;
+            if (!parent) return;
+
+            while (el.firstChild) {
+                parent.insertBefore(el.firstChild, el);
+            }
+            parent.removeChild(el);
+
+            if (
+                parent.nodeType === Node.ELEMENT_NODE &&
+                parent !== editor &&
+                !parent.firstChild
+            ) {
+                parent.appendChild(document.createElement("br"));
+            }
+            parent.normalize();
+        });
     },
 
     getEditorMarkdown(editorElement) {
@@ -646,13 +988,17 @@ const MarkdownEditor = {
 
             if (node.nodeType === Node.TEXT_NODE) {
                 return node.textContent.replace(
-                    /([\\`*_{}\[\]()#+\-.!~=|>])/g,
+                    /([\\`*_{}[\]#+\-.!~=|>])/g,
                     "\\$1",
                 );
             }
 
             if (node.nodeType === Node.ELEMENT_NODE) {
                 const tag = node.tagName.toLowerCase();
+
+                if (tag === "img") {
+                    return `![image](${node.src})`;
+                }
 
                 if (tag === "code" && !node.closest("pre")) {
                     return `\`${node.textContent}\``;
@@ -664,16 +1010,30 @@ const MarkdownEditor = {
                 });
 
                 if (!inner && node.textContent) {
-                    return node.textContent.replace(
-                        /([\\`*_{}\[\]()#+\-.!~=|>])/g,
-                        "\\$1",
-                    );
+                    return node.textContent;
                 }
 
-                if (
-                    tag === "mark" ||
-                    (node.style && node.style.backgroundColor)
-                ) {
+                // Browsers leave empty inline format elements behind after
+                // Enter/Backspace splits. Don't emit delimiters for them, so
+                // stray `==` (empty <mark>) never leaks into the sent message.
+                if (inner.trim() === "") {
+                    return inner;
+                }
+
+                const hasHighlightBg = (() => {
+                    if (!node.style || !node.style.backgroundColor) return false;
+                    const bg = node.style.backgroundColor
+                        .replace(/\s+/g, "")
+                        .toLowerCase();
+                    return (
+                        bg !== "transparent" &&
+                        bg !== "rgba(0,0,0,0)" &&
+                        bg !== "initial" &&
+                        bg !== "inherit"
+                    );
+                })();
+
+                if (tag === "mark" || hasHighlightBg) {
                     return `==${inner}==`;
                 }
                 if (tag === "strong" || tag === "b") {
@@ -684,6 +1044,12 @@ const MarkdownEditor = {
                 }
                 if (tag === "strike" || tag === "s" || tag === "del") {
                     return `~${inner}~`;
+                }
+                if (tag === "sub") {
+                    return `~${inner}~`;
+                }
+                if (tag === "sup") {
+                    return `^${inner}^`;
                 }
                 if (tag === "br") {
                     return "\n";
@@ -720,7 +1086,7 @@ const MarkdownEditor = {
             node.childNodes.forEach((child) => {
                 if (child.nodeType === Node.TEXT_NODE) {
                     const escaped = child.textContent.replace(
-                        /([\\`*_{}\[\]()#+\-.!~=|>])/g,
+                        /([\\`*_{}[\]#+\-.!~=|>])/g,
                         "\\$1",
                     );
                     const text = escaped.trim();
@@ -730,31 +1096,43 @@ const MarkdownEditor = {
                 } else if (child.nodeType === Node.ELEMENT_NODE) {
                     const tag = child.tagName.toLowerCase();
 
-                    if (tag === "table") {
+                    if (tag === "img") {
+                        result += `![image](${child.src})\n\n`;
+                    } else if (tag === "table") {
                         result += parseTable(child);
                     } else if (
                         tag === "div" &&
                         child.classList.contains("code-block-wrapper")
                     ) {
-                        const codeElem = child.querySelector("code");
+                        const codeElem =
+                            child.querySelector("code") ||
+                            child.querySelector("pre");
                         const selectElem = child.querySelector("select");
-                        const lang = selectElem ? selectElem.value : "";
+                        const lang = selectElem
+                            ? selectElem.value
+                            : "plaintext";
                         const codeText = codeElem
-                            ? codeElem.innerText || codeElem.textContent
+                            ? codeElem.textContent.trim()
                             : "";
                         result += `\`\`\`${lang}\n${codeText}\n\`\`\`\n\n`;
                     } else if (tag === "pre") {
                         const codeElem = child.querySelector("code");
                         const codeText = codeElem
-                            ? codeElem.innerText || codeElem.textContent
-                            : child.innerText || child.textContent;
+                            ? codeElem.textContent.trim()
+                            : child.textContent.trim();
                         result += `\`\`\`\n${codeText}\n\`\`\`\n\n`;
                     } else if (tag === "ul" || tag === "ol") {
                         result += parseList(child, 0) + "\n";
-                    } else if (/^h[1-6]$/.test(tag)) {
+                    } else if (/^h[1-6]/.test(tag)) {
                         const level = parseInt(tag[1], 10);
                         const headingText = parseNodeInline(child).trim();
                         result += `${"#".repeat(level)} ${headingText}\n\n`;
+                    } else if (tag === "blockquote") {
+                        const text = parseNodeInline(child).trim();
+                        if (text) {
+                            const quotedText = text.split('\n').map(line => `> ${line}`).join('\n');
+                            result += `${quotedText}\n\n`;
+                        }
                     } else if (tag === "p" || tag === "div") {
                         if (child.querySelector("table")) {
                             child.querySelectorAll("table").forEach((t) => {
@@ -822,9 +1200,59 @@ const MarkdownEditor = {
     parseMarkdownWithMath(text) {
         if (!text) return "";
 
-        let processed = text
-            .replace(/(^|[^\\])==([\s\S]*?)==/g, "$1<mark>$2</mark>")
-            .replace(/\\==/g, "==");
+        // 1. Clean up broken template syntax leaking into raw text
+        let processed = text.replace(/\$\{escapeHtml\((.*?)\)\}/g, (match, p1) => {
+            try { return eval(p1); } catch(e) { return ""; }
+        });
+
+        // 2. Safely parse <file> tags (handles attributes, inner text, or empty fallbacks)
+        const fileTagPlaceholders = [];
+        processed = processed.replace(/<file\b([^>]*)>([\s\S]*?)(?:<\/file>|$)/gi, (match, attrs, inner) => {
+            // Look for title="...", name="...", or use the inner text
+            const attrMatch = attrs.match(/(?:title|name)=["']([^"']+)["']/i);
+            let fileName = attrMatch ? attrMatch[1] : inner.replace(/<[^>]+>/g, "").trim();
+
+            if (!fileName || fileName.length > 50) {
+                fileName = "file";
+            }
+
+            const id = `%%FILE_TAG_${fileTagPlaceholders.length}%%`;
+            fileTagPlaceholders.push({
+                id,
+                html: `<file title="${fileName}">${fileName}</file>`
+            });
+            return id;
+        });
+
+        // Handle orphan <file ...> self-closing or unclosed tags
+        processed = processed.replace(/<file\b([^>]*)\/?>/gi, (match, attrs) => {
+            const attrMatch = attrs.match(/(?:title|name)=["']([^"']+)["']/i);
+            const fileName = attrMatch ? attrMatch[1] : "file";
+
+            const id = `%%FILE_TAG_${fileTagPlaceholders.length}%%`;
+            fileTagPlaceholders.push({
+                id,
+                html: `<file title="${fileName}">${fileName}</file>`
+            });
+            return id;
+        });
+
+        const codePlaceholders = [];
+        processed = processed.replace(/(`{3}[\s\S]*?`{3}|`[^`\n]+`)/g, (match) => {
+            const id = `%%CODE_BLOCK_${codePlaceholders.length}%%`;
+            codePlaceholders.push({ id, match });
+            return id;
+        });
+
+        processed = processed
+            .replace(/==([\s\S]*?)==/g, "<mark>$1</mark>")
+            .replace(/\\==/g, "==")
+            .replace(/~([^~]+)~/g, "<sub>$1</sub>")
+            .replace(/\^([^\^]+)\^/g, "<sup>$1</sup>");
+
+        codePlaceholders.forEach(({ id, match }) => {
+            processed = processed.split(id).join(match);
+        });
 
         const mathBlocks = [];
         const thoughtBlocks = [];
@@ -839,26 +1267,23 @@ const MarkdownEditor = {
             },
         );
 
-        processed = processed.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
-            const id = `%%DISPLAY_MATH_${mathBlocks.length}%%`;
-            mathBlocks.push({ id, math, display: true });
-            return id;
-        });
-
         processed = processed.replace(/\\\[([\s\S]*?)\\\]/g, (match, math) => {
             const id = `%%DISPLAY_MATH_${mathBlocks.length}%%`;
             mathBlocks.push({ id, math, display: true });
             return id;
         });
 
-        processed = processed.replace(
-            /\$([^\s$](?:[^\$]*?[^\s$])?)\$/g,
-            (match, math) => {
-                const id = `%%INLINE_MATH_${mathBlocks.length}%%`;
-                mathBlocks.push({ id, math, display: false });
-                return id;
-            },
-        );
+        processed = processed.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+            const id = `%%DISPLAY_MATH_${mathBlocks.length}%%`;
+            mathBlocks.push({ id, math, display: true });
+            return id;
+        });
+
+        processed = processed.replace(/\\%([\s\S]*?)\\%/g, (match, math) => {
+            const id = `%%INLINE_MATH_${mathBlocks.length}%%`;
+            mathBlocks.push({ id, math, display: false });
+            return id;
+        });
 
         processed = processed.replace(/\\\(([\s\S]*?)\\\)/g, (match, math) => {
             const id = `%%INLINE_MATH_${mathBlocks.length}%%`;
@@ -904,19 +1329,19 @@ const MarkdownEditor = {
         doc.querySelectorAll("table").forEach((table) => {
             const wrapper = doc.createElement("div");
             wrapper.className =
-                "my-3 overflow-x-auto border border-gray-700 rounded-lg bg-gray-900";
+                "my-3 overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 shadow-sm";
 
             table.className =
-                "min-w-full divide-y divide-gray-700 text-left text-sm text-white";
+                "min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-left text-sm text-gray-900 dark:text-white";
 
             table.querySelectorAll("th").forEach((th) => {
                 th.className =
-                    "px-4 py-2.5 bg-gray-800 font-semibold text-white uppercase tracking-wider text-xs border-b border-gray-700";
+                    "px-4 py-2.5 bg-gray-50 dark:bg-gray-800 font-semibold text-gray-900 dark:text-white uppercase tracking-wider text-xs border-b border-gray-200 dark:border-gray-700";
             });
 
             table.querySelectorAll("td").forEach((td) => {
                 td.className =
-                    "px-4 py-2.5 whitespace-nowrap text-white border-b border-gray-800";
+                    "px-4 py-2.5 whitespace-nowrap text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-800";
             });
 
             table.parentNode.insertBefore(wrapper, table);
@@ -924,44 +1349,79 @@ const MarkdownEditor = {
         });
 
         doc.querySelectorAll("pre").forEach((pre) => {
+            let codeElem = pre.querySelector("code");
+            const langClass = codeElem ? codeElem.className : "";
+
             const wrapper = doc.createElement("div");
             wrapper.className =
-                "code-block-wrapper my-2 border border-gray-700 rounded overflow-hidden";
+                "code-block-wrapper my-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 shadow-sm";
 
             const header = doc.createElement("div");
             header.className =
-                "code-block-header bg-gray-800 text-gray-300 text-xs px-3 py-1.5 flex justify-between items-center select-none border-b border-gray-700";
+                "code-block-header bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs px-3 py-1.5 flex justify-between items-center select-none border-b border-gray-200 dark:border-gray-700";
+
+            const match = langClass.match(/language-(\w+)/);
+            const langDisplay = match ? match[1] : "code";
 
             header.innerHTML = `
-                <span class="font-mono text-gray-400">code</span>
-                <div class="flex gap-2">
-                    <button type="button" onclick="MarkdownEditor.toggleCodeCollapse(this)" class="hover:text-white p-1 rounded transition-colors" title="Collapse / Expand">
-                        <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <button type="button" onclick="MarkdownEditor.copyCode(this)" class="hover:text-white p-1 rounded transition-colors" title="Copy Code">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                    </button>
-                </div>
-            `;
+                                <span class="font-mono text-gray-500 dark:text-gray-400">${langDisplay}</span>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="MarkdownEditor.toggleCodeCollapse(this)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors" title="Collapse / Expand">
+                                        <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    <button type="button" onclick="MarkdownEditor.copyCode(this)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors" title="Copy Code">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2/2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                    </button>
+                                </div>
+                            `;
 
-            pre.classList.add("m-0", "rounded-none", "border-0");
+            pre.className =
+                "m-0 rounded-none border-0 p-3 text-gray-800 dark:text-gray-200 font-mono text-sm overflow-x-auto whitespace-pre bg-transparent";
+
+            if (!codeElem) {
+                const newCode = doc.createElement("code");
+                newCode.className = `${langClass} bg-transparent p-0 text-current`;
+                while (pre.firstChild) {
+                    newCode.appendChild(pre.firstChild);
+                }
+                pre.appendChild(newCode);
+            } else {
+                codeElem.className = `${langClass} bg-transparent p-0 text-current`;
+            }
             pre.parentNode.insertBefore(wrapper, pre);
             wrapper.appendChild(header);
             wrapper.appendChild(pre);
         });
 
-        return doc.body.innerHTML;
+        doc.querySelectorAll("blockquote").forEach((bq) => {
+            bq.className =
+                "border-l-4 border-slate-300 dark:border-slate-600 pl-3 my-2 text-slate-600 dark:text-slate-400 italic";
+        });
+
+        // 3. Re-insert formatted file tags
+        let finalHtml = doc.body.innerHTML;
+        fileTagPlaceholders.forEach(({ id, html: fileHtml }) => {
+            finalHtml = finalHtml.split(id).join(fileHtml);
+        });
+
+        return finalHtml;
     },
 };
 
 function applyHeading(tag) {
     MarkdownEditor.applyHeading(tag);
 }
+function applyBlockquote() {
+    MarkdownEditor.applyWYSIWYG("blockquote");
+}
 function applyWYSIWYG(type) {
     MarkdownEditor.applyWYSIWYG(type);
 }
 function handleKeyDown(event) {
     MarkdownEditor.handleKeyDown(event);
+}
+function handlePaste(event) {
+    MarkdownEditor.handlePaste(event);
 }
 function getEditorMarkdown(el) {
     return MarkdownEditor.getEditorMarkdown(el);
@@ -976,5 +1436,8 @@ function renderToolbar(el) {
 ["keyup", "mouseup", "selectionchange", "focusin"].forEach((evt) => {
     document.addEventListener(evt, () => {
         MarkdownEditor.trackSelection();
+        if (evt === "keyup") {
+            MarkdownEditor.cleanupEmptyInlineFormats();
+        }
     });
 });
