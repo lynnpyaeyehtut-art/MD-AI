@@ -65,65 +65,42 @@
                     <div class="relative flex-1 max-w-xs sm:max-w-sm">
                         <button
                             id="modelSelectBtn"
+                            type="button"
                             onclick="toggleDropdown('modelDropdown')"
-                            class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-xs sm:text-sm font-medium transition outline-none border border-slate-200 dark:border-slate-700"
+                            class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-xs sm:text-sm font-medium transition outline-none border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
                             title="Select Model"
                         >
                             <span class="flex items-center gap-2 truncate">
-                                <i
-                                    class="fa-solid fa-cube text-sky-500 text-xs"
-                                ></i>
-                                <span id="currentModelLabel" class="truncate"
-                                    >Select Model</span
-                                >
+                                <i class="fa-solid fa-cube text-sky-500 text-xs"></i>
+                                <span id="currentModelLabel" class="truncate">Select Model</span>
                             </span>
-                            <i
-                                class="fa-solid fa-chevron-down text-xs text-slate-400"
-                            ></i>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
                         </button>
 
                         <div
                             id="modelDropdown"
-                            class="hidden absolute top-full left-0 mt-2 w-full min-w-[260px] bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-2"
+                            class="hidden absolute top-full left-0 mt-2 w-full min-w-[280px] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-30 p-2 space-y-2"
                         >
-                            <div
-                                class="flex items-center justify-between px-2 py-1 mb-1 border-b border-slate-100 dark:border-slate-800 text-[10px] uppercase font-bold text-slate-400"
-                            >
-                                <span id="modelCountLabel">Models</span>
-                                <button
-                                    onclick="fetchModelsList(true)"
-                                    class="text-sky-500 hover:text-sky-600 p-1"
-                                    title="Refresh Models"
-                                >
-                                    <i
-                                        id="refreshModelsIcon"
-                                        class="fa-solid fa-rotate text-xs"
-                                    ></i>
+                            <div class="flex items-center justify-between px-2 py-1 text-xs text-slate-500 border-b border-slate-100 dark:border-slate-800">
+                                <span id="modelCountLabel" class="font-bold text-[11px] text-slate-400 uppercase">Models</span>
+                                <button onclick="fetchModelsList(true)" class="hover:text-sky-500 text-xs p-1" title="Refresh models list">
+                                    <i id="refreshModelsIcon" class="fa-solid fa-arrows-rotate"></i>
                                 </button>
                             </div>
 
-                            <div
-                                class="px-1 py-1.5 mb-2 border-b border-slate-100 dark:border-slate-800"
-                            >
-                                <div class="relative flex items-center">
-                                    <i
-                                        class="fa-solid fa-magnifying-glass absolute left-2.5 text-xs text-slate-400 pointer-events-none"
-                                    ></i>
-                                    <input
-                                        id="modelSearchInput"
-                                        type="text"
-                                        placeholder="Search models (e.g. gpt)..."
-                                        oninput="renderModelsDropdown()"
-                                        onclick="event.stopPropagation()"
-                                        class="w-full pl-8 pr-2 py-1 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500 transition"
-                                    />
-                                </div>
+                            <div class="relative px-1">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400 pointer-events-none"></i>
+                                <input
+                                    type="text"
+                                    id="modelSearchInput"
+                                    oninput="renderModelsDropdown()"
+                                    onclick="event.stopPropagation()"
+                                    placeholder="Search models..."
+                                    class="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 outline-none focus:border-sky-500 transition"
+                                />
                             </div>
 
-                            <div
-                                id="modelsList"
-                                class="space-y-2 max-h-56 overflow-y-auto pr-1"
-                            ></div>
+                            <div id="modelsList" class="max-h-60 overflow-y-auto space-y-1 pr-1"></div>
                         </div>
                     </div>
                 </div>
@@ -142,10 +119,10 @@
             <div
                 class="relative flex-1 min-h-0 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-inner overflow-hidden flex flex-row"
             >
-                <aside
-                    id="chatSidebar"
-                    class="w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 flex flex-col h-full transition-all duration-200 z-30"
-                >
+            <aside
+                id="chatSidebar"
+                class="w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 flex flex-col h-full transition-all duration-200 z-40"
+            >
                     <div
                         class="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 flex-shrink-0"
                     >
@@ -189,14 +166,13 @@
                     <footer
                         class="absolute bottom-0 left-0 right-0 p-2 sm:p-4 bg-gradient-to-t from-white via-white/95 to-transparent dark:from-slate-900 dark:via-slate-900/95 dark:to-transparent z-10 flex flex-col gap-2"
                     >
-                        <!-- Branching Edit Banner Indicator -->
                         <div
                             id="editBranchBanner"
                             class="hidden flex items-center justify-between px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-xs text-indigo-500 font-semibold"
                         >
                             <span class="flex items-center gap-1.5">
-                                <i class="fa-solid fa-code-branch"></i>
-                                Editing message — creating a new branch
+                                <i id="editBranchBannerIcon" class="fa-solid fa-code-branch"></i>
+                                <span id="editBranchBannerText">Editing message — creating a new branch</span>
                             </span>
                             <button
                                 onclick="cancelEditingBranch()"
@@ -396,11 +372,65 @@
                             >
                                 <i class="fa-solid fa-terminal"></i>
                             </button>
+                            <button
+                                onmousedown="event.preventDefault()"
+                                onclick="MarkdownEditor.applyWYSIWYG('sub')"
+                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
+                                title="Subscript"
+                                id="Bar-Subscript"
+                            >
+                                <i class="fa-solid fa-subscript"></i>
+                            </button>
+                            <button
+                                onmousedown="event.preventDefault()"
+                                onclick="MarkdownEditor.applyWYSIWYG('sup')"
+                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
+                                title="Superscript"
+                                id="Bar-Superscript"
+                            >
+                                <i class="fa-solid fa-superscript"></i>
+                            </button>
+                            <button
+                                id="Bar-Blockquote"
+                                onmousedown="event.preventDefault()"
+                                onclick="MarkdownEditor.applyWYSIWYG('blockquote')"
+                                class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
+                                title="Blockquote"
+                            >
+                                <i class="fa-solid fa-quote-right text-[10px]"></i>
+                            </button>
                         </div>
+
+                        <!-- Attached Files Preview Container -->
+                        <div
+                            id="attachedFilesPreview"
+                            class="hidden flex flex-wrap gap-2 px-1 py-1"
+                        ></div>
 
                         <div
                             class="relative flex items-end gap-2 p-2 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl focus-within:ring-2 focus-within:ring-sky-500/50 transition"
                         >
+                            <button
+                                type="button"
+                                onclick="
+                                    document
+                                        .getElementById('fileAttachmentInput')
+                                        .click()
+                                "
+                                class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition flex-shrink-0 mb-0.5"
+                                title="Attach Files (Images, Text, Code)"
+                            >
+                                <i class="fa-solid fa-paperclip text-sm"></i>
+                            </button>
+                            <input
+                                type="file"
+                                id="fileAttachmentInput"
+                                multiple
+                                accept="image/*,text/*,.js,.ts,.py,.json,.css,.html,.c,.cpp,.java,.md,.csv,.xml"
+                                onchange="handleFileUpload(event)"
+                                class="hidden"
+                            />
+
                             <div
                                 id="userInput"
                                 contenteditable="true"
@@ -417,7 +447,6 @@
                                 <i class="fa-solid fa-paper-plane text-xs"></i>
                             </button>
                         </div>
-
                         <div
                             id="activeParamsContainer"
                             class="flex flex-wrap items-center gap-2 pt-1 min-h-[28px]"
@@ -638,6 +667,30 @@
                                 >
                                     <i class="fa-solid fa-code text-[10px]"></i>
                                 </button>
+                                <button
+                                    onmousedown="event.preventDefault()"
+                                    onclick="MarkdownEditor.applyWYSIWYG('sub')"
+                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
+                                    title="Subscript"
+                                >
+                                    <i class="fa-solid fa-subscript text-[10px]"></i>
+                                </button>
+                                <button
+                                    onmousedown="event.preventDefault()"
+                                    onclick="MarkdownEditor.applyWYSIWYG('sup')"
+                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
+                                    title="Superscript"
+                                >
+                                    <i class="fa-solid fa-superscript text-[10px]"></i>
+                                </button>
+                                <button
+                                    onmousedown="event.preventDefault()"
+                                    onclick="MarkdownEditor.applyBlockquote()"
+                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
+                                    title="Blockquote"
+                                >
+                                    <i class="fa-solid fa-quote-right text-[10px]"></i>
+                                </button>
                             </div>
 
                             <div
@@ -657,7 +710,7 @@
                                     class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase"
                                     >Custom API Parameters</span
                                 >
-                                <div class="flex gap-1.5">
+                                <div class="flex flex-wrap justify-end gap-1.5">
                                     <button
                                         onclick="addPresetParam('temperature')"
                                         class="px-2 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-500 text-[10px] font-semibold rounded-lg transition"
@@ -665,9 +718,31 @@
                                         + Temperature
                                     </button>
                                     <button
-                                        onclick="
-                                            addPresetParam('reasoning_effort')
-                                        "
+                                        onclick="addPresetParam('top_p')"
+                                        class="px-2 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-500 text-[10px] font-semibold rounded-lg transition"
+                                    >
+                                        + Top P
+                                    </button>
+                                    <button
+                                        onclick="addPresetParam('max_tokens')"
+                                        class="px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 text-[10px] font-semibold rounded-lg transition"
+                                    >
+                                        + Max Tokens
+                                    </button>
+                                    <button
+                                        onclick="addPresetParam('frequency_penalty')"
+                                        class="px-2 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-[10px] font-semibold rounded-lg transition"
+                                    >
+                                        + Freq Penalty
+                                    </button>
+                                    <button
+                                        onclick="addPresetParam('presence_penalty')"
+                                        class="px-2 py-1 bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 text-[10px] font-semibold rounded-lg transition"
+                                    >
+                                        + Pres Penalty
+                                    </button>
+                                    <button
+                                        onclick="addPresetParam('reasoning_effort')"
                                         class="px-2 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 text-[10px] font-semibold rounded-lg transition"
                                     >
                                         + Reasoning Effort
@@ -726,6 +801,29 @@
                                                 Switch (Boolean)
                                             </option>
                                         </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-[10px] text-slate-400"
+                                        >Icon (Font Awesome name, e.g. fa-bolt)</label
+                                    >
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            id="newParamIconPreview"
+                                            class="flex items-center justify-center w-6 h-6 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sky-500 flex-shrink-0"
+                                        >
+                                            <i
+                                                class="fa-solid fa-icons text-[10px]"
+                                            ></i>
+                                        </span>
+                                        <input
+                                            id="newParamIcon"
+                                            type="text"
+                                            placeholder="fa-bolt"
+                                            oninput="previewNewParamIcon(this.value)"
+                                            class="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500 font-mono"
+                                        />
                                     </div>
                                 </div>
 
@@ -800,140 +898,6 @@
                         </div>
 
                         <div
-                            id="tabContent-mcp"
-                            class="settings-tab-panel hidden space-y-4"
-                        >
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <span
-                                        class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase block"
-                                        >Model Context Protocol (MCP)
-                                        Tools</span
-                                    >
-                                    <p class="text-[10px] text-slate-400">
-                                        Configure external tools, servers, and
-                                        capabilities
-                                    </p>
-                                </div>
-                                <div class="flex gap-1">
-                                    <button
-                                        onclick="addMcpPreset('search')"
-                                        class="px-2 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-500 text-[10px] font-semibold rounded-lg transition"
-                                        title="Add Search MCP"
-                                    >
-                                        + Web Search
-                                    </button>
-                                    <button
-                                        onclick="addMcpPreset('filesystem')"
-                                        class="px-2 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 text-[10px] font-semibold rounded-lg transition"
-                                        title="Add Filesystem MCP"
-                                    >
-                                        + Filesystem
-                                    </button>
-                                    <button
-                                        onclick="addMcpPreset('github')"
-                                        class="px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 text-[10px] font-semibold rounded-lg transition"
-                                        title="Add GitHub MCP"
-                                    >
-                                        + GitHub
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div
-                                id="mcpToolsList"
-                                class="space-y-2.5 max-h-48 overflow-y-auto pr-1"
-                            ></div>
-
-                            <div
-                                class="p-3 bg-slate-100 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2.5"
-                            >
-                                <span
-                                    class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5"
-                                >
-                                    <i
-                                        class="fa-solid fa-plus text-sky-500 text-xs"
-                                    ></i>
-                                    Add Custom MCP Tool
-                                </span>
-
-                                <div
-                                    class="grid grid-cols-1 sm:grid-cols-3 gap-2"
-                                >
-                                    <div class="sm:col-span-2">
-                                        <label
-                                            class="block text-[10px] text-slate-400 mb-0.5"
-                                            >Tool Name</label
-                                        >
-                                        <input
-                                            id="newMcpName"
-                                            type="text"
-                                            placeholder="e.g. Memory MCP"
-                                            class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label
-                                            class="block text-[10px] text-slate-400 mb-0.5"
-                                            >Transport Type</label
-                                        >
-                                        <select
-                                            id="newMcpType"
-                                            class="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500"
-                                        >
-                                            <option value="SSE">
-                                                SSE (Server-Sent Events)
-                                            </option>
-                                            <option value="Stdio">
-                                                Stdio / Command
-                                            </option>
-                                            <option value="HTTP">
-                                                HTTP Endpoint
-                                            </option>
-                                            <option value="Custom">
-                                                Custom Tool
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label
-                                        class="block text-[10px] text-slate-400 mb-0.5"
-                                        >Server URL or CLI Command</label
-                                    >
-                                    <input
-                                        id="newMcpUrl"
-                                        type="text"
-                                        placeholder="https://mcp.example.com/sse or npx -y @modelcontextprotocol/server-..."
-                                        class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500 font-mono"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label
-                                        class="block text-[10px] text-slate-400 mb-0.5"
-                                        >Description / Capability Summary</label
-                                    >
-                                    <input
-                                        id="newMcpDesc"
-                                        type="text"
-                                        placeholder="Brief description of functions provided by this tool..."
-                                        class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500"
-                                    />
-                                </div>
-
-                                <button
-                                    onclick="saveNewMcpTool()"
-                                    class="w-full py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1 shadow-sm"
-                                >
-                                    <i class="fa-solid fa-plus text-xs"></i> Add
-                                    MCP Tool
-                                </button>
-                            </div>
-                        </div>
-
-                        <div
                             id="tabContent-appearance"
                             class="settings-tab-panel hidden space-y-4"
                         >
@@ -952,8 +916,7 @@
                                             Theme Mode
                                         </h4>
                                         <p class="text-[11px] text-slate-400">
-                                            Toggle between dark and light
-                                            appearance
+                                            Toggle between dark and light appearance
                                         </p>
                                     </div>
                                 </div>
@@ -967,6 +930,24 @@
                                         class="fa-solid fa-moon text-sm"
                                     ></i>
                                 </button>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">Theme Style</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="setThemeStyle('pro')" id="styleBtn-pro" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition flex flex-col items-center gap-1 bg-sky-500/10 text-sky-500 border-sky-500">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                                        <span>Pro</span>
+                                    </button>
+                                    <button onclick="setThemeStyle('normal')" id="styleBtn-normal" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                                        <i class="fa-solid fa-circle-half-stroke text-sm"></i>
+                                        <span>Normal</span>
+                                    </button>
+                                    <button onclick="setThemeStyle('max')" id="styleBtn-max" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                                        <i class="fa-solid fa-circle text-sm"></i>
+                                        <span>Max</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -1021,8 +1002,8 @@
                 </div>
             </div>
         </div>
-        <script src="https://js.puter.com/v2/puter.js" defer></script>
         <script src="markdown-editor.js" defer></script>
+        <script src="MCP.js" defer></script>
         <script src="main.js" defer></script>
     </body>
 </html>
