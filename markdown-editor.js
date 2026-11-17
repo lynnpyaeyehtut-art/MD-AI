@@ -1,12 +1,214 @@
 const MarkdownEditor = {
     lastSelectionRange: null,
 
+    toolbarButtons: [
+        {
+            type: 'heading',
+            buttons: [
+                { id: 'H1', label: 'H1', title: 'Heading 1 (H1)', class: 'px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-extrabold transition', action: "MarkdownEditor.applyHeading('h1')" },
+                { id: 'H2', label: 'H2', title: 'Heading 2 (H2)', class: 'px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-bold transition', action: "MarkdownEditor.applyHeading('h2')" },
+                { id: 'H3', label: 'H3', title: 'Heading 3 (H3)', class: 'px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-semibold transition', action: "MarkdownEditor.applyHeading('h3')" },
+                { id: 'H4', label: 'H4', title: 'Heading 4 (H4)', class: 'px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-medium transition', action: "MarkdownEditor.applyHeading('h4')" },
+            ]
+        },
+        {
+            type: 'button',
+            id: 'Bold',
+            title: 'Bold',
+            icon: 'fa-solid fa-bold',
+            action: "MarkdownEditor.applyWYSIWYG('bold')"
+        },
+        {
+            type: 'button',
+            id: 'Italic',
+            title: 'Italic',
+            icon: 'fa-solid fa-italic',
+            action: "MarkdownEditor.applyWYSIWYG('italic')"
+        },
+        {
+            type: 'button',
+            id: 'Hightlight Text',
+            title: 'Highlight Text',
+            icon: 'fa-solid fa-highlighter',
+            action: "MarkdownEditor.applyWYSIWYG('highlight')",
+            class: 'p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition text-slate-800 dark:text-slate-100 hover:text-black dark:hover:text-white'
+        },
+        {
+            type: 'button',
+            id: 'Strikethrough',
+            title: 'Strikethrough',
+            icon: 'fa-solid fa-strikethrough',
+            action: "MarkdownEditor.applyWYSIWYG('strike')"
+        },
+        {
+            type: 'button',
+            id: 'Bullet List',
+            title: 'Bullet List',
+            icon: 'fa-solid fa-list-ul',
+            action: "MarkdownEditor.applyWYSIWYG('ul')"
+        },
+        {
+            type: 'button',
+            id: 'Numbered List',
+            title: 'Numbered List',
+            icon: 'fa-solid fa-list-ol',
+            action: "MarkdownEditor.applyWYSIWYG('ol')"
+        },
+        {
+            type: 'button',
+            id: 'Indent List Item',
+            title: 'Indent List Item',
+            icon: 'fa-solid fa-indent',
+            action: "MarkdownEditor.applyWYSIWYG('sublist')"
+        },
+        {
+            type: 'button',
+            id: 'Checklist Item',
+            title: 'Checklist Item',
+            icon: 'fa-regular fa-square-check',
+            action: "MarkdownEditor.applyWYSIWYG('task')"
+        },
+        {
+            type: 'button',
+            id: 'Insert Table',
+            title: 'Insert Table',
+            icon: 'fa-solid fa-table',
+            action: "MarkdownEditor.applyWYSIWYG('table')"
+        },
+        {
+            type: 'button',
+            id: 'Add Row',
+            title: 'Add Row',
+            html: '<i class="fa-solid fa-plus text-[9px]"></i><i class="fa-solid fa-grip-lines"></i>',
+            class: 'p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5',
+            action: "MarkdownEditor.applyWYSIWYG('addRow')"
+        },
+        {
+            type: 'button',
+            id: 'Add Column',
+            title: 'Add Column',
+            html: '<i class="fa-solid fa-plus text-[9px]"></i><i class="fa-solid fa-grip-lines-vertical"></i>',
+            class: 'p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5',
+            action: "MarkdownEditor.applyWYSIWYG('addCol')"
+        },
+        {
+            type: 'button',
+            id: 'Delete Row',
+            title: 'Delete Row',
+            html: '<i class="fa-solid fa-minus text-[9px]"></i><i class="fa-solid fa-grip-lines"></i>',
+            class: 'p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5 text-red-500 hover:text-red-600',
+            action: "MarkdownEditor.applyWYSIWYG('delRow')"
+        },
+        {
+            type: 'button',
+            id: 'Delete Column',
+            title: 'Delete Column',
+            html: '<i class="fa-solid fa-minus text-[9px]"></i><i class="fa-solid fa-grip-lines-vertical"></i>',
+            class: 'p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5 text-red-500 hover:text-red-600',
+            action: "MarkdownEditor.applyWYSIWYG('delCol')"
+        },
+        {
+            type: 'button',
+            id: 'Insert Code Block',
+            title: 'Insert Code Block',
+            icon: 'fa-solid fa-code',
+            action: "MarkdownEditor.applyWYSIWYG('code')"
+        },
+        {
+            type: 'button',
+            id: 'Inline Code',
+            title: 'Inline Code',
+            icon: 'fa-solid fa-terminal',
+            action: "MarkdownEditor.applyWYSIWYG('inlineCode')"
+        },
+        {
+            type: 'button',
+            id: 'Subscript',
+            title: 'Subscript',
+            icon: 'fa-solid fa-subscript',
+            action: "MarkdownEditor.applyWYSIWYG('sub')"
+        },
+        {
+            type: 'button',
+            id: 'Superscript',
+            title: 'Superscript',
+            icon: 'fa-solid fa-superscript',
+            action: "MarkdownEditor.applyWYSIWYG('sup')"
+        },
+        {
+            type: 'button',
+            id: 'Blockquote',
+            title: 'Blockquote',
+            icon: 'fa-solid fa-quote-right text-[10px]',
+            action: "MarkdownEditor.applyWYSIWYG('blockquote')"
+        },
+        {
+            type: 'button',
+            id: 'Divider',
+            title: 'Horizontal Divider (---)',
+            icon: 'fa-solid fa-grip-lines',
+            action: "MarkdownEditor.applyWYSIWYG('divider')"
+        },
+        {
+            type: 'button',
+            id: 'FormatSwitch',
+            title: 'Toggle Formatted / Unformatted Markdown',
+            icon: 'fa-solid fa-eye',
+            action: ''
+        }
+    ],
+
+    renderToolbarHtml(prefix = "") {
+        let html = '';
+        this.toolbarButtons.forEach(item => {
+            if (item.type === 'heading') {
+                html += '<div class="flex items-center gap-0.5">';
+                item.buttons.forEach(b => {
+                    const btnId = prefix + 'Bar-' + b.id;
+                    html += `<button onmousedown="event.preventDefault()" onclick="${b.action}" class="${b.class}" title="${b.title}" id="${btnId}">${b.label}</button>`;
+                });
+                html += '</div>';
+            } else {
+                const btnId = prefix + 'Bar-' + item.id;
+                const cls = item.class || 'p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition';
+                const inner = item.icon ? `<i class="${item.icon}"></i>` : item.html;
+                let action = item.action;
+                if (item.id === 'FormatSwitch') {
+                    action = `MarkdownEditor.toggleFormatSwitch(this, '${prefix}')`;
+                }
+                html += `<button onmousedown="event.preventDefault()" onclick="${action}" class="${cls}" title="${item.title}" id="${btnId}">${inner}</button>`;
+            }
+        });
+        return html;
+    },
+
     getActiveEditor() {
-        if (
-            document.activeElement &&
-            document.activeElement.id === "systemPromptInput"
-        ) {
-            return document.activeElement;
+        const active = document.activeElement;
+        if (active) {
+            if (active.id === "systemPromptInput" || active.closest("#systemPromptInput")) {
+                return document.getElementById("systemPromptInput");
+            }
+            if (active.classList && active.classList.contains("persona-prompt-editor") || active.closest(".persona-prompt-editor")) {
+                return active.classList.contains("persona-prompt-editor") ? active : active.closest(".persona-prompt-editor");
+            }
+            if (active.id === "userInput" || active.closest("#userInput")) {
+                return document.getElementById("userInput");
+            }
+            if (active.id === "newSkillContent" || active.closest("#newSkillContent")) {
+                return document.getElementById("newSkillContent");
+            }
+        }
+        // Fallback to whichever one was last focused or visible
+        const modal = document.getElementById("settingsModal");
+        if (modal && !modal.classList.contains("hidden")) {
+            const sysInput = document.getElementById("systemPromptInput");
+            const skillInput = document.getElementById("newSkillContent");
+            const activePersonaInput = modal.querySelector(".persona-prompt-editor:focus, .persona-prompt-editor");
+            if (activePersonaInput && (active === activePersonaInput || activePersonaInput.contains(active))) return activePersonaInput;
+            if (sysInput && (active === sysInput || sysInput.contains(active))) return sysInput;
+            if (skillInput && (active === skillInput || skillInput.contains(active))) return skillInput;
+            if (activePersonaInput) return activePersonaInput;
+            if (sysInput && (!userInputHasFocus())) return sysInput;
         }
         return document.getElementById("userInput");
     },
@@ -109,7 +311,7 @@ const MarkdownEditor = {
             "Bar-Indent List Item",
             "Bar-Checklist Item",
         ];
-        const middleGroup = ["Bar-Insert Code Block", "Bar-Insert Table"];
+        const middleGroup = ["Bar-Insert Code Block", "Bar-Insert Table", "Bar-Divider"];
         const tableGroup = [
             "Bar-Add Row",
             "Bar-Add Column",
@@ -118,11 +320,22 @@ const MarkdownEditor = {
         ];
 
         const setGroupVisibility = (ids, visible) => {
+            const prefixes = ["", "Sys-", "Skill-", "Persona-"];
             ids.forEach((id) => {
-                const el = document.getElementById(id);
-                if (el) el.style.display = visible ? "" : "none";
+                prefixes.forEach((pfx) => {
+                    const el = document.getElementById(pfx + id);
+                    if (el) el.style.display = visible ? "" : "none";
+                });
             });
         };
+
+        if (editor && editor.dataset.unformatted === "true") {
+            setGroupVisibility(selectionGroup, false);
+            setGroupVisibility(startLineGroup, false);
+            setGroupVisibility(middleGroup, false);
+            setGroupVisibility(tableGroup, false);
+            return;
+        }
 
         if (codeBlockNode || isInsidePre) {
             setGroupVisibility(selectionGroup, false);
@@ -417,13 +630,43 @@ const MarkdownEditor = {
             case "sublist":
                 if (li) document.execCommand("indent");
                 break;
-            case "task":
-                document.execCommand(
-                    "insertHTML",
-                    false,
-                    '<ul style="list-style-type:none"><li class="flex items-center gap-2"><input type="checkbox" class="mr-1" /> Task item</li></ul>',
-                );
+            case "task": {
+                if (li) {
+                    if (li.classList.contains("task-list-item")) {
+                        this.removeTaskItem(li);
+                    } else {
+                        this.makeTaskItem(li);
+                    }
+                } else {
+                    document.execCommand("insertUnorderedList");
+                    let newLi = this.getClosestTagNode(
+                        window.getSelection().anchorNode,
+                        ["li"],
+                    );
+                    if (!newLi) {
+                        const liveRange = window.getSelection().rangeCount
+                            ? window.getSelection().getRangeAt(0)
+                            : null;
+                        if (liveRange) {
+                            newLi = this.getClosestTagNode(
+                                liveRange.commonAncestorContainer,
+                                ["li"],
+                            );
+                        }
+                    }
+                    if (!newLi) {
+                        const editor = this.getActiveEditor();
+                        if (editor) {
+                            const emptyLis = Array.from(
+                                editor.querySelectorAll("li"),
+                            ).filter((item) => !item.textContent.trim());
+                            newLi = emptyLis[emptyLis.length - 1] || null;
+                        }
+                    }
+                    if (newLi) this.makeTaskItem(newLi);
+                }
                 break;
+            }
             case "table": {
                 const editor = this.getActiveEditor();
                 if (!editor) return;
@@ -609,6 +852,59 @@ const MarkdownEditor = {
                 }
                 break;
             }
+            case "divider": {
+                const editor = this.getActiveEditor();
+                if (!editor) return;
+                editor.focus();
+
+                const sel = window.getSelection();
+                let range;
+
+                if (
+                    sel &&
+                    sel.rangeCount > 0 &&
+                    editor.contains(sel.anchorNode)
+                ) {
+                    range = sel.getRangeAt(0);
+                } else {
+                    range = document.createRange();
+                    range.selectNodeContents(editor);
+                    range.collapse(false);
+                }
+
+                const hrElem = document.createElement("hr");
+                hrElem.className = "my-4 border-slate-300 dark:border-slate-700";
+
+                const trailingP = document.createElement("p");
+                trailingP.innerHTML = "<br>";
+
+                range.deleteContents();
+                let blockContainer = this.getClosestTagNode(
+                    range.startContainer,
+                    ["p", "div", "h1", "h2", "h3", "h4", "li"],
+                );
+
+                if (blockContainer && blockContainer !== editor) {
+                    blockContainer.parentNode.insertBefore(
+                        hrElem,
+                        blockContainer.nextSibling,
+                    );
+                    hrElem.parentNode.insertBefore(
+                        trailingP,
+                        hrElem.nextSibling,
+                    );
+                } else {
+                    editor.appendChild(hrElem);
+                    editor.appendChild(trailingP);
+                }
+
+                const newRange = document.createRange();
+                newRange.setStart(trailingP, 0);
+                newRange.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(newRange);
+                break;
+            }
             case "codeBlock":
             case "code": {
                 const selectedText = sel.toString() || "// Write code here";
@@ -639,7 +935,7 @@ const MarkdownEditor = {
 
                 const wrapper = document.createElement("div");
                 wrapper.className =
-                    "code-block-wrapper my-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 shadow-sm";
+                    "code-block-wrapper my-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900 shadow-sm";
                 wrapper.setAttribute("contenteditable", "false");
 
                 wrapper.innerHTML = `
@@ -659,10 +955,10 @@ const MarkdownEditor = {
                                         </div>
                                         <div class="flex gap-2">
                                             <button type="button" onclick="MarkdownEditor.toggleCodeCollapse(this)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors" title="Collapse / Expand">
-                                                <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                <svg width="16" height="16" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                             </button>
                                             <button type="button" onclick="MarkdownEditor.copyCode(this)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors" title="Copy Code">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2/2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                                <svg width="16" height="16" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2/2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                             </button>
                                         </div>
                                     </div>
@@ -849,15 +1145,18 @@ const MarkdownEditor = {
         }
 
         if (event.key === "Enter") {
-            if (event.target && event.target.id === "systemPromptInput") return;
+            const isSystemPrompt =
+                event.target && (event.target.id === "systemPromptInput" || event.target.closest("#systemPromptInput"));
 
             // Ctrl + Enter: Send message
             if (event.ctrlKey) {
-                event.preventDefault();
-                if (typeof sendMessage === "function") {
-                    sendMessage();
+                if (!isSystemPrompt) {
+                    event.preventDefault();
+                    if (typeof sendMessage === "function") {
+                        sendMessage();
+                    }
+                    return;
                 }
-                return;
             }
 
             // Shift + Enter inside headings: Break out into a new paragraph
@@ -875,7 +1174,70 @@ const MarkdownEditor = {
                 return;
             }
 
+            // Enter inside a checklist item: create the next checklist item,
+            // or leave the list when the current item is empty.
+            if (
+                !event.shiftKey &&
+                li &&
+                (li.classList.contains("task-list-item") ||
+                    !!li.querySelector(':scope > input[type="checkbox"]'))
+            ) {
+                const range = sel.getRangeAt(0);
+                event.preventDefault();
+                if (!range.collapsed) {
+                    range.deleteContents();
+                    range.collapse(true);
+                }
+                const text = li.textContent.replace(/\u200b/g, "").trim();
+                if (!text) {
+                    this.exitTaskItem(li);
+                } else {
+                    this.splitTaskItem(li, range);
+                }
+                return;
+            }
+
             // Regular Enter or Shift + Enter: Allow default contenteditable line-break behavior
+        }
+
+        if (
+            event.key === "Backspace" &&
+            li &&
+            (li.classList.contains("task-list-item") ||
+                !!li.querySelector(':scope > input[type="checkbox"]'))
+        ) {
+            const range = sel.getRangeAt(0);
+            const checkbox = li.querySelector(':scope > input[type="checkbox"]');
+            if (checkbox && range.collapsed) {
+                let atTaskStart = false;
+                if (range.startContainer === li) {
+                    atTaskStart = range.startOffset <= 2;
+                } else if (
+                    range.startContainer.nodeType === Node.TEXT_NODE &&
+                    range.startOffset === 0
+                ) {
+                    let prev = range.startContainer.previousSibling;
+                    while (
+                        prev &&
+                        prev.nodeType === Node.TEXT_NODE &&
+                        prev.textContent.trim() === ""
+                    ) {
+                        prev = prev.previousSibling;
+                    }
+                    atTaskStart = prev === checkbox;
+                }
+
+                if (atTaskStart) {
+                    event.preventDefault();
+                    const text = li.textContent.replace(/\u200b/g, "").trim();
+                    if (!text) {
+                        this.exitTaskItem(li);
+                    } else {
+                        this.removeTaskItem(li);
+                    }
+                    return;
+                }
+            }
         }
 
         if (event.key === "Backspace" && li) {
@@ -896,6 +1258,169 @@ const MarkdownEditor = {
                 document.execCommand("outdent");
             }
         }
+    },
+
+    makeTaskItem(li) {
+        if (!li) return;
+
+        const list = li.parentNode;
+        if (list && (list.tagName === "UL" || list.tagName === "OL")) {
+            list.classList.add("task-list");
+        }
+
+        li.classList.add("task-list-item");
+
+        let checkbox = li.querySelector(':scope > input[type="checkbox"]');
+        let spaceNode = null;
+        if (!checkbox) {
+            checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            spaceNode = document.createTextNode(" ");
+            li.insertBefore(checkbox, li.firstChild);
+            li.insertBefore(spaceNode, checkbox.nextSibling);
+        } else {
+            spaceNode = checkbox.nextSibling;
+        }
+
+        const hasContent = Array.from(li.childNodes).some((node) => {
+            if (node === checkbox || node === spaceNode) return false;
+            if (node.nodeType === Node.TEXT_NODE) {
+                return node.textContent.trim() !== "";
+            }
+            return node.tagName !== "BR";
+        });
+
+        if (!hasContent) {
+            li.querySelectorAll(":scope > br").forEach((br) => br.remove());
+        }
+
+        const sel = window.getSelection();
+        if (!sel) return;
+        const range = document.createRange();
+        if (!hasContent && spaceNode && spaceNode.nodeType === Node.TEXT_NODE) {
+            range.setStart(spaceNode, spaceNode.textContent.length);
+            range.collapse(true);
+        } else {
+            range.selectNodeContents(li);
+            range.collapse(false);
+        }
+        sel.removeAllRanges();
+        sel.addRange(range);
+    },
+
+    syncTaskListClass(li) {
+        const list = li ? li.parentNode : null;
+        if (!list || (list.tagName !== "UL" && list.tagName !== "OL")) return;
+        const hasTasks = Array.from(list.children).some(
+            (child) =>
+                child.tagName === "LI" &&
+                child.classList.contains("task-list-item"),
+        );
+        list.classList.toggle("task-list", hasTasks);
+    },
+
+    removeTaskItem(li) {
+        if (!li) return;
+
+        const checkbox = li.querySelector(':scope > input[type="checkbox"]');
+        if (checkbox) {
+            if (
+                checkbox.nextSibling &&
+                checkbox.nextSibling.nodeType === Node.TEXT_NODE &&
+                checkbox.nextSibling.textContent.trim() === ""
+            ) {
+                checkbox.nextSibling.remove();
+            }
+            checkbox.remove();
+        }
+
+        li.classList.remove("task-list-item");
+        this.syncTaskListClass(li);
+        if (!li.textContent.trim() && !li.querySelector("ul, ol")) {
+            li.innerHTML = "<br>";
+        }
+
+        const sel = window.getSelection();
+        if (!sel) return;
+        const range = document.createRange();
+        range.selectNodeContents(li);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    },
+
+    splitTaskItem(li, range) {
+        const sel = window.getSelection();
+        if (!sel) return;
+
+        const tailRange = document.createRange();
+        tailRange.selectNodeContents(li);
+        tailRange.setStart(range.startContainer, range.startOffset);
+        const fragment = tailRange.extractContents();
+
+        const newLi = document.createElement("li");
+        newLi.className = "task-list-item";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        newLi.appendChild(checkbox);
+        newLi.appendChild(document.createTextNode(" "));
+        newLi.appendChild(fragment);
+
+        li.parentNode.insertBefore(newLi, li.nextSibling);
+
+        const newRange = document.createRange();
+        newRange.setStart(newLi, Math.min(2, newLi.childNodes.length));
+        newRange.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+    },
+
+    exitTaskItem(li) {
+        const checkbox = li.querySelector(':scope > input[type="checkbox"]');
+        if (checkbox) {
+            if (
+                checkbox.nextSibling &&
+                checkbox.nextSibling.nodeType === Node.TEXT_NODE &&
+                checkbox.nextSibling.textContent.trim() === ""
+            ) {
+                checkbox.nextSibling.remove();
+            }
+            checkbox.remove();
+        }
+        li.classList.remove("task-list-item");
+        this.syncTaskListClass(li);
+        if (!li.textContent.trim() && !li.querySelector("ul, ol")) {
+            li.innerHTML = "<br>";
+        }
+
+        const sel = window.getSelection();
+        if (!sel) return;
+
+        let currentLi = this.getClosestTagNode(sel.anchorNode, ["li"]);
+        let guard = 0;
+        while (currentLi && guard < 20) {
+            document.execCommand("outdent");
+            currentLi = this.getClosestTagNode(
+                window.getSelection().anchorNode,
+                ["li"],
+            );
+            guard++;
+        }
+    },
+
+    makeEditorCheckboxesEditable(editorEl) {
+        if (!editorEl) return;
+        editorEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+            cb.removeAttribute("disabled");
+            const li = cb.closest("li");
+            if (li) {
+                li.classList.add("task-list-item");
+                const list = li.parentNode;
+                if (list && (list.tagName === "UL" || list.tagName === "OL")) {
+                    list.classList.add("task-list");
+                }
+            }
+        });
     },
 
     cleanupEmptyInlineFormats() {
@@ -940,8 +1465,76 @@ const MarkdownEditor = {
         });
     },
 
+    toggleFormatSwitch(btn, prefix) {
+        let editor = null;
+        if (!prefix || prefix === "") {
+            editor = document.getElementById("userInput");
+        } else if (prefix === "Sys-") {
+            editor = document.getElementById("systemPromptInput");
+        } else if (prefix === "Skill-") {
+            editor = document.getElementById("newSkillContent");
+        } else if (prefix.startsWith("Persona_")) {
+            const personaId = prefix.replace(/^Persona_/, "").replace(/_$/, "");
+            const card = document.querySelector(`.persona-card[data-persona-id="${personaId}"]`);
+            if (card) {
+                editor = card.querySelector(".persona-prompt-editor");
+            }
+        }
+        if (!editor) {
+            editor = this.getActiveEditor();
+        }
+        if (!editor) return;
+
+        const isUnformatted = editor.dataset.unformatted === "true";
+        const barContainer = btn.closest(".flex");
+
+        if (!isUnformatted) {
+            const markdownText = this.getEditorMarkdown(editor);
+            editor.textContent = markdownText;
+            editor.dataset.unformatted = "true";
+
+            if (barContainer) {
+                barContainer.querySelectorAll("button, div.flex").forEach(child => {
+                    if (child !== btn && !child.contains(btn)) {
+                        child.dataset.prevDisplay = child.style.display;
+                        child.style.display = "none";
+                    }
+                });
+            }
+
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-eye text-sky-500"></i>';
+                btn.title = "Switch to Formatted View (Current: Unformatted Markdown)";
+                btn.classList.add("bg-sky-500/15", "text-sky-500");
+            }
+        } else {
+            const rawText = editor.textContent || editor.innerText;
+            const parsedHtml = this.parseMarkdownWithMath(rawText, { editable: true });
+            editor.innerHTML = parsedHtml;
+            this.makeEditorCheckboxesEditable(editor);
+            editor.dataset.unformatted = "false";
+
+            if (barContainer) {
+                barContainer.querySelectorAll("button, div.flex").forEach(child => {
+                    if (child !== btn && !child.contains(btn)) {
+                        child.style.display = child.dataset.prevDisplay || "";
+                    }
+                });
+            }
+
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+                btn.title = "Switch to Unformatted Markdown (Current: Formatted)";
+                btn.classList.remove("bg-sky-500/15", "text-sky-500");
+            }
+        }
+    },
+
     getEditorMarkdown(editorElement) {
         if (!editorElement) return "";
+        if (editorElement.dataset.unformatted === "true") {
+            return editorElement.textContent || "";
+        }
 
         function parseList(listNode, depth = 0) {
             let result = "";
@@ -954,6 +1547,11 @@ const MarkdownEditor = {
                 if (tag === "li") {
                     let inlineText = "";
                     let nestedMarkdown = "";
+                    const checkbox = child.querySelector(
+                        ':scope > input[type="checkbox"]',
+                    );
+                    const isTask =
+                        !!checkbox || child.classList.contains("task-list-item");
 
                     Array.from(child.childNodes).forEach((liChild) => {
                         if (
@@ -968,9 +1566,15 @@ const MarkdownEditor = {
                     });
 
                     inlineText = inlineText.trim();
-                    if (inlineText) {
+                    if (inlineText || isTask) {
                         const indent = "    ".repeat(depth);
-                        result += `${indent}- ${inlineText}\n`;
+                        let marker = "- ";
+                        if (isTask) {
+                            marker = checkbox && checkbox.checked
+                                ? "- [x] "
+                                : "- [ ] ";
+                        }
+                        result += `${indent}${marker}${inlineText}\n`;
                     }
                     if (nestedMarkdown) {
                         result += nestedMarkdown;
@@ -1043,7 +1647,7 @@ const MarkdownEditor = {
                     return `*${inner}*`;
                 }
                 if (tag === "strike" || tag === "s" || tag === "del") {
-                    return `~${inner}~`;
+                    return `~~${inner}~~`;
                 }
                 if (tag === "sub") {
                     return `~${inner}~`;
@@ -1100,6 +1704,8 @@ const MarkdownEditor = {
                         result += `![image](${child.src})\n\n`;
                     } else if (tag === "table") {
                         result += parseTable(child);
+                    } else if (tag === "hr") {
+                        result += `---\n\n`;
                     } else if (
                         tag === "div" &&
                         child.classList.contains("code-block-wrapper")
@@ -1112,14 +1718,14 @@ const MarkdownEditor = {
                             ? selectElem.value
                             : "plaintext";
                         const codeText = codeElem
-                            ? codeElem.textContent.trim()
+                            ? MarkdownEditor.extractCodeText(codeElem).trim()
                             : "";
                         result += `\`\`\`${lang}\n${codeText}\n\`\`\`\n\n`;
                     } else if (tag === "pre") {
                         const codeElem = child.querySelector("code");
                         const codeText = codeElem
-                            ? codeElem.textContent.trim()
-                            : child.textContent.trim();
+                            ? MarkdownEditor.extractCodeText(codeElem).trim()
+                            : MarkdownEditor.extractCodeText(child).trim();
                         result += `\`\`\`\n${codeText}\n\`\`\`\n\n`;
                     } else if (tag === "ul" || tag === "ol") {
                         result += parseList(child, 0) + "\n";
@@ -1138,6 +1744,27 @@ const MarkdownEditor = {
                             child.querySelectorAll("table").forEach((t) => {
                                 result += parseTable(t);
                             });
+                        } else if (child.querySelector("ul, ol")) {
+                            Array.from(child.childNodes).forEach((sub) => {
+                                if (sub.nodeType === Node.ELEMENT_NODE) {
+                                    const subTag =
+                                        sub.tagName.toLowerCase();
+                                    if (subTag === "ul" || subTag === "ol") {
+                                        result += parseList(sub, 0) + "\n";
+                                        return;
+                                    }
+                                    if (subTag === "table") {
+                                        result += parseTable(sub);
+                                        return;
+                                    }
+                                    if (subTag === "p" || subTag === "div") {
+                                        result += parseNode(sub);
+                                        return;
+                                    }
+                                }
+                                const text = parseNodeInline(sub).trim();
+                                if (text) result += `${text}\n\n`;
+                            });
                         } else {
                             const text = parseNodeInline(child).trim();
                             if (text) result += `${text}\n\n`;
@@ -1153,6 +1780,34 @@ const MarkdownEditor = {
         }
 
         return parseNode(editorElement).trim();
+    },
+
+    extractCodeText(node) {
+        if (!node) return "";
+        let text = "";
+        function walk(n) {
+            if (n.nodeType === Node.TEXT_NODE) {
+                text += n.textContent;
+            } else if (n.nodeType === Node.ELEMENT_NODE) {
+                const tag = n.tagName.toLowerCase();
+                if (tag === "br") {
+                    text += "\n";
+                } else {
+                    const isBlock = ["div", "p", "tr"].includes(tag);
+                    if (isBlock && text.length > 0 && !text.endsWith("\n")) {
+                        text += "\n";
+                    }
+                    for (const child of n.childNodes) {
+                        walk(child);
+                    }
+                    if (isBlock && text.length > 0 && !text.endsWith("\n")) {
+                        text += "\n";
+                    }
+                }
+            }
+        }
+        walk(node);
+        return text;
     },
 
     toggleCodeCollapse(btn) {
@@ -1172,9 +1827,9 @@ const MarkdownEditor = {
 
     copyCode(btn) {
         const wrapper = btn.closest(".code-block-wrapper");
-        const code = wrapper ? wrapper.querySelector("code") : null;
+        const code = wrapper ? wrapper.querySelector("code") || wrapper.querySelector("pre") : null;
         if (code) {
-            const textToCopy = code.innerText || code.textContent;
+            const textToCopy = this.extractCodeText(code).trim();
             navigator.clipboard.writeText(textToCopy);
             const icon = btn.querySelector("svg");
             if (icon) {
@@ -1189,52 +1844,25 @@ const MarkdownEditor = {
     },
 
     changeLanguage(selectElem) {
-        const codeElem = selectElem
-            .closest(".code-block-wrapper")
-            .querySelector("code");
+        const wrapper = selectElem.closest(".code-block-wrapper");
+        const codeElem = wrapper ? wrapper.querySelector("code") : null;
         if (codeElem) {
-            codeElem.className = `language-${selectElem.value}`;
+            codeElem.className = codeElem.className
+                .split(/\s+/)
+                .filter((cls) => cls && !cls.startsWith("language-"))
+                .join(" ");
+            codeElem.classList.add(`language-${selectElem.value}`);
         }
     },
 
-    parseMarkdownWithMath(text) {
+    parseMarkdownWithMath(text, options = {}) {
         if (!text) return "";
+
+        const editable = !!options.editable;
 
         // 1. Clean up broken template syntax leaking into raw text
         let processed = text.replace(/\$\{escapeHtml\((.*?)\)\}/g, (match, p1) => {
             try { return eval(p1); } catch(e) { return ""; }
-        });
-
-        // 2. Safely parse <file> tags (handles attributes, inner text, or empty fallbacks)
-        const fileTagPlaceholders = [];
-        processed = processed.replace(/<file\b([^>]*)>([\s\S]*?)(?:<\/file>|$)/gi, (match, attrs, inner) => {
-            // Look for title="...", name="...", or use the inner text
-            const attrMatch = attrs.match(/(?:title|name)=["']([^"']+)["']/i);
-            let fileName = attrMatch ? attrMatch[1] : inner.replace(/<[^>]+>/g, "").trim();
-
-            if (!fileName || fileName.length > 50) {
-                fileName = "file";
-            }
-
-            const id = `%%FILE_TAG_${fileTagPlaceholders.length}%%`;
-            fileTagPlaceholders.push({
-                id,
-                html: `<file title="${fileName}">${fileName}</file>`
-            });
-            return id;
-        });
-
-        // Handle orphan <file ...> self-closing or unclosed tags
-        processed = processed.replace(/<file\b([^>]*)\/?>/gi, (match, attrs) => {
-            const attrMatch = attrs.match(/(?:title|name)=["']([^"']+)["']/i);
-            const fileName = attrMatch ? attrMatch[1] : "file";
-
-            const id = `%%FILE_TAG_${fileTagPlaceholders.length}%%`;
-            fileTagPlaceholders.push({
-                id,
-                html: `<file title="${fileName}">${fileName}</file>`
-            });
-            return id;
         });
 
         const codePlaceholders = [];
@@ -1247,6 +1875,7 @@ const MarkdownEditor = {
         processed = processed
             .replace(/==([\s\S]*?)==/g, "<mark>$1</mark>")
             .replace(/\\==/g, "==")
+            .replace(/~~([\s\S]*?)~~/g, "<s>$1</s>")
             .replace(/~([^~]+)~/g, "<sub>$1</sub>")
             .replace(/\^([^\^]+)\^/g, "<sup>$1</sup>");
 
@@ -1326,6 +1955,27 @@ const MarkdownEditor = {
 
         const doc = new DOMParser().parseFromString(html, "text/html");
 
+        doc.querySelectorAll('li > input[type="checkbox"]').forEach((cb) => {
+            cb.setAttribute("disabled", "true");
+            if (cb.parentElement) {
+                cb.parentElement.classList.add("task-list-item");
+            }
+        });
+
+        doc.querySelectorAll("ul, ol").forEach((list) => {
+            const items = Array.from(list.children).filter(
+                (child) => child.tagName === "LI",
+            );
+            if (
+                items.length > 0 &&
+                items.every((item) =>
+                    item.classList.contains("task-list-item"),
+                )
+            ) {
+                list.classList.add("task-list");
+            }
+        });
+
         doc.querySelectorAll("table").forEach((table) => {
             const wrapper = doc.createElement("div");
             wrapper.className =
@@ -1349,34 +1999,60 @@ const MarkdownEditor = {
         });
 
         doc.querySelectorAll("pre").forEach((pre) => {
+            if (pre.closest(".code-block-wrapper")) return;
             let codeElem = pre.querySelector("code");
             const langClass = codeElem ? codeElem.className : "";
 
             const wrapper = doc.createElement("div");
             wrapper.className =
-                "code-block-wrapper my-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 shadow-sm";
+                "code-block-wrapper my-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900 shadow-sm";
 
             const header = doc.createElement("div");
             header.className =
                 "code-block-header bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs px-3 py-1.5 flex justify-between items-center select-none border-b border-gray-200 dark:border-gray-700";
 
             const match = langClass.match(/language-(\w+)/);
-            const langDisplay = match ? match[1] : "code";
+            const lang = match ? match[1] : "plaintext";
+            const languages = [
+                "javascript",
+                "python",
+                "html",
+                "css",
+                "json",
+                "sql",
+                "bash",
+                "markdown",
+                "plaintext",
+            ];
+            const languageControl = editable
+                ? `<select onchange="MarkdownEditor.changeLanguage(this)" class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded px-1.5 py-0.5 text-xs font-mono focus:outline-none focus:border-gray-500">${languages
+                      .map(
+                          (name) =>
+                              `<option value="${name}" ${name === lang ? "selected" : ""}>${name}</option>`,
+                      )
+                      .join("")}</select>`
+                : `<span class="font-mono text-gray-500 dark:text-gray-400">${lang}</span>`;
 
             header.innerHTML = `
-                                <span class="font-mono text-gray-500 dark:text-gray-400">${langDisplay}</span>
-                                <div class="flex gap-2">
-                                    <button type="button" onclick="MarkdownEditor.toggleCodeCollapse(this)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors" title="Collapse / Expand">
-                                        <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    </button>
-                                    <button type="button" onclick="MarkdownEditor.copyCode(this)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors" title="Copy Code">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2/2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                                    </button>
+                                <div class="flex items-center gap-2">
+                                    ${languageControl}
                                 </div>
+                                 <div class="flex gap-2">
+                                     <button type="button" onclick="MarkdownEditor.toggleCodeCollapse(this)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors" title="Collapse / Expand">
+                                         <svg width="16" height="16" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                     </button>
+                                     <button type="button" onclick="MarkdownEditor.copyCode(this)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors" title="Copy Code">
+                                         <svg width="16" height="16" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2/2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                     </button>
+                                 </div>
                             `;
 
             pre.className =
-                "m-0 rounded-none border-0 p-3 text-gray-800 dark:text-gray-200 font-mono text-sm overflow-x-auto whitespace-pre bg-transparent";
+                "m-0 rounded-none border-0 p-3 text-gray-800 dark:text-gray-200 font-mono text-sm overflow-x-auto whitespace-pre-wrap bg-transparent";
+            if (editable) {
+                pre.setAttribute("contenteditable", "true");
+                wrapper.setAttribute("contenteditable", "false");
+            }
 
             if (!codeElem) {
                 const newCode = doc.createElement("code");
@@ -1398,12 +2074,7 @@ const MarkdownEditor = {
                 "border-l-4 border-slate-300 dark:border-slate-600 pl-3 my-2 text-slate-600 dark:text-slate-400 italic";
         });
 
-        // 3. Re-insert formatted file tags
         let finalHtml = doc.body.innerHTML;
-        fileTagPlaceholders.forEach(({ id, html: fileHtml }) => {
-            finalHtml = finalHtml.split(id).join(fileHtml);
-        });
-
         return finalHtml;
     },
 };

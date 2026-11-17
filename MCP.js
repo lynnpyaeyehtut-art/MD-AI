@@ -260,9 +260,14 @@ function renderMcpToolsList() {
                     <span class="font-bold text-slate-800 dark:text-slate-100 truncate">${escapeHtml(tool.name)}</span>
                     <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-sky-500/10 text-sky-500 uppercase">${escapeHtml(tool.type || "SSE")}</span>
                 </div>
-                <button onclick="removeMcpTool('${tool.id}')" class="text-red-500 hover:text-red-600 p-1 flex-shrink-0" title="Remove Tool">
-                    <i class="fa-solid fa-trash-can text-xs"></i>
-                </button>
+                <div class="flex items-center gap-1 flex-shrink-0">
+                    <button onclick="editMcpTool('${tool.id}')" class="text-sky-500 hover:text-sky-600 p-1" title="Edit Tool">
+                        <i class="fa-solid fa-pen-to-square text-xs"></i>
+                    </button>
+                    <button onclick="removeMcpTool('${tool.id}')" class="text-red-500 hover:text-red-600 p-1" title="Remove Tool">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                </div>
             </div>
             ${tool.url ? `<div class="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate bg-slate-200/50 dark:bg-slate-900/50 px-2 py-0.5 rounded">${escapeHtml(tool.url)}</div>` : ""}
             ${tool.description ? `<div class="text-[10px] text-slate-500 dark:text-slate-400 leading-snug">${escapeHtml(tool.description)}</div>` : ""}
@@ -315,6 +320,80 @@ function rehydrateWebMcpTools() {
         });
     }
 }
+let editingMcpId = null;
+
+function editMcpTool(id) {
+    const tool = state.mcpTools.find(t => t.id === id);
+    if (!tool) return;
+
+    editingMcpId = id;
+
+    const nameEl = document.getElementById("newMcpName");
+    const typeEl = document.getElementById("newMcpType");
+    const urlEl = document.getElementById("newMcpUrl");
+    const descEl = document.getElementById("newMcpDesc");
+    const scriptEl = document.getElementById("newWebMcpScript");
+    const jsonEl = document.getElementById("newMcpJson");
+    const submitBtn = document.getElementById("mcpSubmitBtn");
+    const cancelBtn = document.getElementById("mcpCancelEditBtn");
+
+    if (nameEl) nameEl.value = tool.name || "";
+    if (typeEl) {
+        typeEl.value = tool.type || "SSE";
+        toggleMcpTypeFields();
+    }
+    if (urlEl) urlEl.value = tool.url || "";
+    if (descEl) descEl.value = tool.description || "";
+
+    if (tool.type === "WebMCP") {
+        if (scriptEl) scriptEl.value = tool.scriptText || "";
+    } else {
+        if (jsonEl) {
+            jsonEl.value = tool.config ? JSON.stringify(tool.config, null, 2) : (tool.jsonConfig || "");
+        }
+    }
+
+    if (submitBtn) {
+        submitBtn.innerHTML = `<i class="fa-solid fa-save text-xs"></i> Update MCP Tool`;
+    }
+    if (cancelBtn) {
+        cancelBtn.classList.remove("hidden");
+    }
+
+    // Scroll to form
+    nameEl?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function cancelEditMcpTool() {
+    editingMcpId = null;
+
+    const nameEl = document.getElementById("newMcpName");
+    const typeEl = document.getElementById("newMcpType");
+    const urlEl = document.getElementById("newMcpUrl");
+    const descEl = document.getElementById("newMcpDesc");
+    const scriptEl = document.getElementById("newWebMcpScript");
+    const jsonEl = document.getElementById("newMcpJson");
+    const submitBtn = document.getElementById("mcpSubmitBtn");
+    const cancelBtn = document.getElementById("mcpCancelEditBtn");
+
+    if (nameEl) nameEl.value = "";
+    if (typeEl) {
+        typeEl.value = "SSE";
+        toggleMcpTypeFields();
+    }
+    if (urlEl) urlEl.value = "";
+    if (descEl) descEl.value = "";
+    if (scriptEl) scriptEl.value = "";
+    if (jsonEl) jsonEl.value = "";
+
+    if (submitBtn) {
+        submitBtn.innerHTML = `<i class="fa-solid fa-plus text-xs"></i> Add MCP Tool`;
+    }
+    if (cancelBtn) {
+        cancelBtn.classList.add("hidden");
+    }
+}
+
 function saveNewMcpTool() {
     const nameEl = document.getElementById("newMcpName");
     const typeEl = document.getElementById("newMcpType");
@@ -336,7 +415,7 @@ function saveNewMcpTool() {
     }
 
     let parsedTool = {
-        id: "mcp_" + Date.now(),
+        id: editingMcpId ? editingMcpId : ("mcp_" + Date.now()),
         name,
         type,
         url,
@@ -374,7 +453,20 @@ function saveNewMcpTool() {
         }
     }
 
-    state.mcpTools.push(parsedTool);
+    if (editingMcpId) {
+        const index = state.mcpTools.findIndex(t => t.id === editingMcpId);
+        if (index !== -1) {
+            // preserve enabled state
+            parsedTool.enabled = state.mcpTools[index].enabled;
+            state.mcpTools[index] = parsedTool;
+        } else {
+            state.mcpTools.push(parsedTool);
+        }
+        cancelEditMcpTool();
+    } else {
+        state.mcpTools.push(parsedTool);
+    }
+
     saveMcpToolsState();
 
     // Reset inputs
@@ -574,11 +666,19 @@ const MCP_PAGE_HTML = `
                                 </div>
 
                                 <button
+                                    id="mcpSubmitBtn"
                                     onclick="saveNewMcpTool()"
                                     class="w-full py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1 shadow-sm"
                                 >
                                     <i class="fa-solid fa-plus text-xs"></i> Add
                                     MCP Tool
+                                </button>
+                                <button
+                                    id="mcpCancelEditBtn"
+                                    onclick="cancelEditMcpTool()"
+                                    class="w-full py-1.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold transition hidden"
+                                >
+                                    Cancel Edit
                                 </button>
                             </div>
                         </div>

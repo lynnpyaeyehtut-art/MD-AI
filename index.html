@@ -6,28 +6,30 @@
         <title>AI Wrapper</title>
 
         <!-- Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="DONOTREADOREDIT/tailwindcss/tailwindcss.js"></script>
         <script>
             tailwind.config = { darkMode: "class" };
         </script>
         <link
             rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+            href="DONOTREADOREDIT/fontawesome/css/all.min.css"
         />
-        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="DONOTREADOREDIT/marked/marked.min.js"></script>
         <link
             rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css"
+            href="DONOTREADOREDIT/highlightjs/styles/atom-one-dark.min.css"
             id="hljs-theme"
         />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="DONOTREADOREDIT/highlightjs/highlight.min.js"></script>
 
         <!-- KaTeX Requirements for LaTeX Rendering -->
         <link
             rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"
+            href="DONOTREADOREDIT/katex/katex.min.css"
         />
-        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+        <script src="DONOTREADOREDIT/katex/katex.min.js"></script>
+        <!-- JSZip for ZIP Export/Import -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
         <!-- Custom Styles -->
         <link rel="stylesheet" href="style.css" />
@@ -88,6 +90,33 @@
                                 </button>
                             </div>
 
+                            <div class="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                                <button
+                                    type="button"
+                                    onclick="setModelDropdownMode('models')"
+                                    id="modelModeBtn-models"
+                                    class="flex-1 py-1 px-2 rounded-lg text-xs font-semibold transition bg-white dark:bg-slate-700 text-sky-500 shadow-xs"
+                                >
+                                    Models
+                                </button>
+                                 <button
+                                    type="button"
+                                    onclick="setModelDropdownMode('personas')"
+                                    id="modelModeBtn-personas"
+                                    class="flex-1 py-1 px-2 rounded-lg text-xs font-semibold transition text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                                >
+                                    Personas
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="setModelDropdownMode('agents')"
+                                    id="modelModeBtn-agents"
+                                    class="flex-1 py-1 px-2 rounded-lg text-xs font-semibold transition text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                                >
+                                    Agents
+                                </button>
+                            </div>
+
                             <div class="relative px-1">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400 pointer-events-none"></i>
                                 <input
@@ -106,6 +135,70 @@
                 </div>
 
                 <div class="flex items-center gap-1.5">
+                    <button
+                        type="button"
+                        onclick="document.getElementById('headerImportFileInput').click()"
+                        class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition"
+                        title="Import Conversation"
+                    >
+                        <i class="fa-solid fa-file-arrow-down text-sm"></i>
+                    </button>
+                    <input
+                        type="file"
+                        id="headerImportFileInput"
+                        accept=".json,.zip"
+                        onchange="handleImportConversationJSON(event)"
+                        class="hidden"
+                    />
+
+                    <div class="relative">
+                        <button
+                            type="button"
+                            onclick="toggleDropdown('headerExportDropdown')"
+                            class="h-9 px-2.5 flex items-center gap-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition text-xs font-semibold"
+                            title="Export Conversation"
+                        >
+                            <i class="fa-solid fa-file-arrow-up text-sm"></i>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                        </button>
+                        <div
+                            id="headerExportDropdown"
+                            class="hidden absolute right-0 top-full mt-1.5 w-48 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-1.5 space-y-1"
+                        >
+                            <button
+                                type="button"
+                                onclick="closeDropdown('headerExportDropdown'); exportActiveConversation('chatgpt')"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left"
+                            >
+                                <span>ChatGPT compatible</span>
+                                <span class="text-[10px] text-slate-400">Default</span>
+                            </button>
+                            <button
+                                type="button"
+                                onclick="closeDropdown('headerExportDropdown'); exportActiveConversation('chatgpt_zip')"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left"
+                            >
+                                <span>ChatGPT ZIP</span>
+                                <span class="text-[10px] text-slate-400">Zip</span>
+                            </button>
+                            <button
+                                type="button"
+                                onclick="closeDropdown('headerExportDropdown'); exportActiveConversation('claude')"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left"
+                            >
+                                <span>Claude</span>
+                                <span class="text-[10px] text-slate-400">Branch</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button
+                            onclick="toggleCanvas()"
+                            class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition"
+                            title="Canvas Editor (iframe)"
+                        >
+                            <i class="fa-solid fa-pen-nib text-sm"></i>
+                        </button>
                     <button
                         onclick="toggleModal('settingsModal')"
                         class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition"
@@ -138,7 +231,7 @@
                     <div
                         id="conversationsContainer"
                         class="flex-1 overflow-y-auto p-2 space-y-1"
-                    ></div>
+                    >                    </div>
                 </aside>
 
                 <div
@@ -164,7 +257,7 @@
                     </main>
 
                     <footer
-                        class="absolute bottom-0 left-0 right-0 p-2 sm:p-4 bg-gradient-to-t from-white via-white/95 to-transparent dark:from-slate-900 dark:via-slate-900/95 dark:to-transparent z-10 flex flex-col gap-2"
+                        class="absolute bottom-0 left-0 right-0 p-2 sm:p-4 z-10 flex flex-col gap-2"
                     >
                         <div
                             id="editBranchBanner"
@@ -186,220 +279,7 @@
                         <div
                             id="markdownBar"
                             class="flex items-center gap-1 overflow-x-auto p-1.5 bg-slate-100 dark:bg-slate-800/95 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 select-none"
-                        >
-                            <div class="flex items-center gap-0.5">
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyHeading('h1')"
-                                    class="px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-extrabold transition"
-                                    title="Heading 1 (H1)"
-                                    id="Bar-H1"
-                                >
-                                    H1
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyHeading('h2')"
-                                    class="px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-bold transition"
-                                    title="Heading 2 (H2)"
-                                    id="Bar-H2"
-                                >
-                                    H2
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyHeading('h3')"
-                                    class="px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-semibold transition"
-                                    title="Heading 3 (H3)"
-                                    id="Bar-H3"
-                                >
-                                    H3
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyHeading('h4')"
-                                    class="px-1.5 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-medium transition"
-                                    title="Heading 4 (H4)"
-                                    id="Bar-H4"
-                                >
-                                    H4
-                                </button>
-                            </div>
-
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('bold')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Bold"
-                                id="Bar-Bold"
-                            >
-                                <i class="fa-solid fa-bold"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('italic')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Italic"
-                                id="Bar-Italic"
-                            >
-                                <i class="fa-solid fa-italic"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="
-                                    MarkdownEditor.applyWYSIWYG('highlight')
-                                "
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition text-slate-800 dark:text-slate-100 hover:text-black dark:hover:text-white"
-                                title="Highlight Text"
-                                id="Bar-Hightlight Text"
-                            >
-                                <i class="fa-solid fa-highlighter"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('strike')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Strikethrough"
-                                id="Bar-Strikethrough"
-                            >
-                                <i class="fa-solid fa-strikethrough"></i>
-                            </button>
-
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('ul')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Bullet List"
-                                id="Bar-Bullet List"
-                            >
-                                <i class="fa-solid fa-list-ul"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('ol')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Numbered List"
-                                id="Bar-Numbered List"
-                            >
-                                <i class="fa-solid fa-list-ol"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('sublist')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Indent List Item"
-                                id="Bar-Indent List Item"
-                            >
-                                <i class="fa-solid fa-indent"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('task')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Checklist Item"
-                                id="Bar-Checklist Item"
-                            >
-                                <i class="fa-regular fa-square-check"></i>
-                            </button>
-
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('table')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Insert Table"
-                                id="Bar-Insert Table"
-                            >
-                                <i class="fa-solid fa-table"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('addRow')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5"
-                                title="Add Row"
-                                id="Bar-Add Row"
-                            >
-                                <i class="fa-solid fa-plus text-[9px]"></i
-                                ><i class="fa-solid fa-grip-lines"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('addCol')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5"
-                                title="Add Column"
-                                id="Bar-Add Column"
-                            >
-                                <i class="fa-solid fa-plus text-[9px]"></i
-                                ><i class="fa-solid fa-grip-lines-vertical"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('delRow')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5 text-red-500 hover:text-red-600"
-                                title="Delete Row"
-                                id="Bar-Delete Row"
-                            >
-                                <i class="fa-solid fa-minus text-[9px]"></i
-                                ><i class="fa-solid fa-grip-lines"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('delCol')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition flex items-center gap-0.5 text-red-500 hover:text-red-600"
-                                title="Delete Column"
-                                id="Bar-Delete Column"
-                            >
-                                <i class="fa-solid fa-minus text-[9px]"></i
-                                ><i class="fa-solid fa-grip-lines-vertical"></i>
-                            </button>
-
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('code')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Insert Code Block"
-                                id="Bar-Insert Code Block"
-                            >
-                                <i class="fa-solid fa-code"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="
-                                    MarkdownEditor.applyWYSIWYG('inlineCode')
-                                "
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Inline Code"
-                                id="Bar-Inline Code"
-                            >
-                                <i class="fa-solid fa-terminal"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('sub')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Subscript"
-                                id="Bar-Subscript"
-                            >
-                                <i class="fa-solid fa-subscript"></i>
-                            </button>
-                            <button
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('sup')"
-                                class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Superscript"
-                                id="Bar-Superscript"
-                            >
-                                <i class="fa-solid fa-superscript"></i>
-                            </button>
-                            <button
-                                id="Bar-Blockquote"
-                                onmousedown="event.preventDefault()"
-                                onclick="MarkdownEditor.applyWYSIWYG('blockquote')"
-                                class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                title="Blockquote"
-                            >
-                                <i class="fa-solid fa-quote-right text-[10px]"></i>
-                            </button>
-                        </div>
+                        ></div>
 
                         <!-- Attached Files Preview Container -->
                         <div
@@ -410,18 +290,37 @@
                         <div
                             class="relative flex items-end gap-2 p-2 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl focus-within:ring-2 focus-within:ring-sky-500/50 transition"
                         >
-                            <button
-                                type="button"
-                                onclick="
-                                    document
-                                        .getElementById('fileAttachmentInput')
-                                        .click()
-                                "
-                                class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition flex-shrink-0 mb-0.5"
-                                title="Attach Files (Images, Text, Code)"
-                            >
-                                <i class="fa-solid fa-paperclip text-sm"></i>
-                            </button>
+                            <div class="relative flex-shrink-0 mb-0.5">
+                                <button
+                                    type="button"
+                                    onclick="toggleDropdown('plusMenuDropdown')"
+                                    class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition"
+                                    title="Add attachment or skill"
+                                >
+                                    <i class="fa-solid fa-plus text-sm"></i>
+                                </button>
+                                <div
+                                    id="plusMenuDropdown"
+                                    class="hidden absolute bottom-full left-0 mb-2 w-48 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-30 p-1.5 space-y-1"
+                                >
+                                    <button
+                                        type="button"
+                                        onclick="closeDropdown('plusMenuDropdown'); document.getElementById('fileAttachmentInput').click();"
+                                        class="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition text-left"
+                                    >
+                                        <i class="fa-solid fa-paperclip text-sky-500"></i>
+                                        Upload File
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onclick="closeDropdown('plusMenuDropdown'); openSkillPickerModal();"
+                                        class="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition text-left"
+                                    >
+                                        <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                                        Choose Skill
+                                    </button>
+                                </div>
+                            </div>
                             <input
                                 type="file"
                                 id="fileAttachmentInput"
@@ -453,8 +352,84 @@
                         ></div>
                     </footer>
                 </div>
+
+            <aside
+                id="canvasSidebar"
+                class="w-64 flex-shrink-0 border-l border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 flex flex-col h-full transition-all duration-200 z-40 relative"
+            >
+                <div
+                    id="canvasResizeHandle"
+                    class="absolute top-0 bottom-0 left-0 w-2 cursor-ew-resize hover:bg-sky-500/20 transition z-50"
+                    title="Drag to resize"
+                ></div>
+                <div
+                    class="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between flex-shrink-0"
+                >
+                    <h3
+                        class="font-bold text-sm flex items-center gap-2 text-slate-800 dark:text-slate-100"
+                    >
+                        <i class="fa-solid fa-pen-nib text-sky-500"></i> Canvas
+                    </h3>
+                        <div class="flex items-center gap-2">
+                            <label class="text-[10px] text-slate-500 dark:text-slate-400 whitespace-nowrap">Width</label>
+                            <input
+                                type="number"
+                                id="canvasWidthInput"
+                                min="200"
+                                max="900"
+                                step="10"
+                                value="300"
+                                oninput="updateCanvasWidth()"
+                                class="w-16 px-1.5 py-1 text-xs rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 outline-none focus:border-sky-500"
+                            />
+                            <button
+                                onclick="toggleCanvas()"
+                                class="text-slate-400 hover:text-slate-200 p-1 rounded-lg transition text-xs"
+                                title="Close Canvas"
+                            >
+                                <i class="fa-solid fa-xmark text-base"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex-1 relative overflow-hidden bg-slate-50 dark:bg-slate-950"
+                    >
+                        <iframe
+                            id="canvasIframe"
+                            class="w-full h-full"
+                            src="about:blank"
+                            frameborder="0"
+                            allow="scripts"
+                        ></iframe>
+                    </div>
+
+                    <div
+                        class="px-4 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center justify-between gap-2 flex-shrink-0"
+                    >
+                        <div class="text-xs text-slate-500 dark:text-slate-400">
+                            Use <code class="text-sky-500">canvas.title.content = "&lt;h1&gt;Hello&lt;/h1&gt;"</code>
+                            or <code class="text-sky-500">canvas.title.getElementById("id")</code>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button
+                                onclick="copyCanvasHtml()"
+                                class="px-2 py-1 text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-700 dark:text-slate-200 transition"
+                                title="Copy Canvas HTML"
+                            >
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button
+                                onclick="clearCanvas()"
+                                class="text-slate-400 hover:text-slate-200 p-1 rounded-lg transition text-xs"
+                                title="Clear Canvas"
+                            >
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                </aside>
             </div>
-        </div>
 
         <div
             id="settingsModal"
@@ -496,6 +471,33 @@
                             <span>Providers & Auth</span>
                         </button>
                         <button
+                            onclick="switchSettingsTab('models')"
+                            id="tabBtn-models"
+                            class="settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition text-left text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800"
+                            title="Models"
+                        >
+                            <i class="fa-solid fa-cube text-sm"></i>
+                            <span>Models</span>
+                        </button>
+                        <button
+                            onclick="switchSettingsTab('personas')"
+                            id="tabBtn-personas"
+                            class="settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition text-left text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800"
+                            title="Personas"
+                        >
+                            <i class="fa-solid fa-id-badge text-sm"></i>
+                            <span>Personas</span>
+                        </button>
+                        <button
+                            onclick="switchSettingsTab('agents')"
+                            id="tabBtn-agents"
+                            class="settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition text-left text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800"
+                            title="Agents"
+                        >
+                            <i class="fa-solid fa-robot text-sm"></i>
+                            <span>Agents</span>
+                        </button>
+                        <button
                             onclick="switchSettingsTab('system')"
                             id="tabBtn-system"
                             class="settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition text-left text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800"
@@ -521,6 +523,15 @@
                         >
                             <i class="fa-solid fa-plug text-sm"></i>
                             <span>MCP Tools</span>
+                        </button>
+                        <button
+                            onclick="switchSettingsTab('skills')"
+                            id="tabBtn-skills"
+                            class="settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition text-left text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800"
+                            title="Skills"
+                        >
+                            <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                            <span>Skills</span>
                         </button>
                         <button
                             onclick="switchSettingsTab('appearance')"
@@ -570,6 +581,154 @@
                         </div>
 
                         <div
+                            id="tabContent-personas"
+                            class="settings-tab-panel hidden space-y-4"
+                        >
+                            <div class="flex items-center justify-between">
+                                <label
+                                    class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase"
+                                    >AI Personas</label
+                                >
+                                <button
+                                    type="button"
+                                    onclick="addNewPersonaUI()"
+                                    class="px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-500 text-xs font-semibold rounded-lg transition flex items-center gap-1"
+                                >
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                    Add Persona
+                                </button>
+                            </div>
+                            <div
+                                id="personasContainer"
+                                class="space-y-4 max-h-[310px] overflow-y-auto pr-1"
+                            ></div>
+                        </div>
+
+                        <div
+                            id="tabContent-agents"
+                            class="settings-tab-panel hidden space-y-4"
+                        >
+                            <div class="flex items-center justify-between">
+                                <label
+                                    class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase"
+                                    >Script Agents</label
+                                >
+                                <button
+                                    type="button"
+                                    onclick="addNewAgentUI()"
+                                    class="px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-500 text-xs font-semibold rounded-lg transition flex items-center gap-1"
+                                >
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                    Add Agent
+                                </button>
+                            </div>
+                            <div
+                                id="agentsContainer"
+                                class="space-y-4 max-h-[310px] overflow-y-auto pr-1"
+                            ></div>
+                        </div>
+
+                        <div
+                            id="tabContent-models"
+                            class="settings-tab-panel hidden space-y-4"
+                        >
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <label
+                                        class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase"
+                                        >Title Generation</label
+                                    >
+                                    <label
+                                        class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 cursor-pointer"
+                                    >
+                                        <input
+                                            id="titleGenEnabled"
+                                            type="checkbox"
+                                            onchange="state.titleGenEnabled = this.checked"
+                                            class="rounded text-sky-500 cursor-pointer"
+                                        />
+                                        Generate titles automatically
+                                    </label>
+                                </div>
+                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                    Uses the selected model to create a short title for each new conversation. Falls back to the chat model if none is chosen.
+                                </p>
+
+                                <div class="relative">
+                                    <button
+                                        id="titleModelSelectBtn"
+                                        type="button"
+                                        onclick="toggleDropdown('titleModelDropdown')"
+                                        class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-xs font-medium transition outline-none border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200"
+                                        title="Select Title Generation Model"
+                                    >
+                                        <span class="flex items-center gap-2 truncate">
+                                            <i class="fa-solid fa-tag text-sky-500 text-xs"></i>
+                                            <span id="titleModelLabel" class="truncate">Chat Model (Default)</span>
+                                        </span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                                    </button>
+
+                                    <div
+                                        id="titleModelDropdown"
+                                        class="hidden mt-2 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg p-2 space-y-2"
+                                    >
+                                        <div class="flex items-center justify-between px-2 py-1 text-xs text-slate-500 border-b border-slate-100 dark:border-slate-800">
+                                            <span id="titleModelCountLabel" class="font-bold text-[11px] text-slate-400 uppercase">Models</span>
+                                            <button onclick="fetchModelsList(true)" class="hover:text-sky-500 text-xs p-1" title="Refresh models list">
+                                                <i class="fa-solid fa-arrows-rotate"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="relative px-1">
+                                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400 pointer-events-none"></i>
+                                            <input
+                                                type="text"
+                                                id="titleModelSearchInput"
+                                                oninput="renderTitleModelDropdown()"
+                                                onclick="event.stopPropagation()"
+                                                placeholder="Search models..."
+                                                class="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 outline-none focus:border-sky-500 transition"
+                                            />
+                                        </div>
+
+                                        <div id="titleModelList" class="max-h-60 overflow-y-auto space-y-1 pr-1"></div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onclick="selectTitleModel('', '')"
+                                    class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 transition"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                                        Use chat model
+                                    </span>
+                                    <i id="titleModelDefaultCheck" class="fa-solid fa-check text-xs text-sky-500 hidden"></i>
+                                </button>
+                            </div>
+
+                            <div
+                                class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 space-y-2"
+                            >
+                                <label
+                                    class="block text-[11px] font-bold text-slate-600 dark:text-slate-300"
+                                    >Custom Title Prompt</label
+                                >
+                                <textarea
+                                    id="titlePromptInput"
+                                    rows="3"
+                                    placeholder="Generate a concise title (max 6 words) for a conversation that starts with the following message. Reply with the title only, no quotes."
+                                    class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500 resize-y"
+                                ></textarea>
+                                <p class="text-[10px] text-slate-400">
+                                    Leave empty to use the default prompt.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div
                             id="tabContent-system"
                             class="settings-tab-panel hidden space-y-2 opacity-100 transition-opacity"
                         >
@@ -586,117 +745,14 @@
                             </div>
 
                             <div
-                                class="flex items-center gap-1 overflow-x-auto p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 select-none"
-                            >
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyHeading('h1')"
-                                    class="px-1.5 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-[10px] font-extrabold transition"
-                                >
-                                    H1
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyHeading('h2')"
-                                    class="px-1.5 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-[10px] font-bold transition"
-                                >
-                                    H2
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyHeading('h3')"
-                                    class="px-1.5 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-[10px] font-semibold transition"
-                                >
-                                    H3
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="
-                                        MarkdownEditor.applyWYSIWYG('bold')
-                                    "
-                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                >
-                                    <i class="fa-solid fa-bold text-[10px]"></i>
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="
-                                        MarkdownEditor.applyWYSIWYG('italic')
-                                    "
-                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                >
-                                    <i
-                                        class="fa-solid fa-italic text-[10px]"
-                                    ></i>
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="
-                                        MarkdownEditor.applyWYSIWYG('strike')
-                                    "
-                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                >
-                                    <i
-                                        class="fa-solid fa-strikethrough text-[10px]"
-                                    ></i>
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyWYSIWYG('ul')"
-                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                >
-                                    <i
-                                        class="fa-solid fa-list-ul text-[10px]"
-                                    ></i>
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyWYSIWYG('ol')"
-                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                >
-                                    <i
-                                        class="fa-solid fa-list-ol text-[10px]"
-                                    ></i>
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="
-                                        MarkdownEditor.applyWYSIWYG('code')
-                                    "
-                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                >
-                                    <i class="fa-solid fa-code text-[10px]"></i>
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyWYSIWYG('sub')"
-                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                    title="Subscript"
-                                >
-                                    <i class="fa-solid fa-subscript text-[10px]"></i>
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyWYSIWYG('sup')"
-                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                    title="Superscript"
-                                >
-                                    <i class="fa-solid fa-superscript text-[10px]"></i>
-                                </button>
-                                <button
-                                    onmousedown="event.preventDefault()"
-                                    onclick="MarkdownEditor.applyBlockquote()"
-                                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs transition"
-                                    title="Blockquote"
-                                >
-                                    <i class="fa-solid fa-quote-right text-[10px]"></i>
-                                </button>
-                            </div>
+                                id="systemPromptMarkdownBar"
+                                class="flex items-center gap-1 overflow-x-auto p-1.5 bg-slate-100 dark:bg-slate-800/95 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 select-none"
+                            ></div>
 
                             <div
                                 id="systemPromptInput"
                                 contenteditable="true"
-                                onkeydown="handleKeyDown(event)"
+                                onkeydown="MarkdownEditor.handleKeyDown(event)"
                                 class="markdown-body w-full p-3 min-h-[220px] max-h-60 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:border-sky-500 leading-relaxed text-xs text-slate-800 dark:text-slate-100"
                             ></div>
                         </div>
@@ -934,21 +990,96 @@
 
                             <div class="space-y-2">
                                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">Theme Style</label>
-                                <div class="grid grid-cols-3 gap-2">
-                                    <button onclick="setThemeStyle('pro')" id="styleBtn-pro" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition flex flex-col items-center gap-1 bg-sky-500/10 text-sky-500 border-sky-500">
-                                        <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
-                                        <span>Pro</span>
+                                <div class="relative">
+                                    <button
+                                        id="themeStyleSelectBtn"
+                                        type="button"
+                                        onclick="toggleDropdown('themeStyleDropdown')"
+                                        class="w-full flex items-center justify-between gap-2 px-3 py-2.5 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl text-xs font-medium transition outline-none border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 shadow-sm"
+                                        title="Select Theme Style"
+                                    >
+                                        <span class="flex items-center gap-2 truncate">
+                                            <i id="currentThemeStyleIcon" class="fa-solid fa-wand-magic-sparkles text-sky-500 text-xs"></i>
+                                            <span id="currentThemeStyleLabel" class="truncate font-semibold">Pro</span>
+                                        </span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
                                     </button>
-                                    <button onclick="setThemeStyle('normal')" id="styleBtn-normal" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                                        <i class="fa-solid fa-circle-half-stroke text-sm"></i>
-                                        <span>Normal</span>
-                                    </button>
-                                    <button onclick="setThemeStyle('max')" id="styleBtn-max" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                                        <i class="fa-solid fa-circle text-sm"></i>
-                                        <span>Max</span>
-                                    </button>
+
+                                    <div
+                                        id="themeStyleDropdown"
+                                        class="hidden absolute top-full left-0 mt-2 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-30 p-1.5 space-y-1"
+                                    >
+                                        <div id="themeStyleOptionsList" class="space-y-1"></div>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div
+                            id="tabContent-skills"
+                            class="settings-tab-panel hidden space-y-4"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase block">Modular Markdown Skills</span>
+                                    <p class="text-[10px] text-slate-400">Create or import markdown skills that format as XML for the AI</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onclick="document.getElementById('skillMdFileInput').click()"
+                                    class="px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-500 text-xs font-semibold rounded-lg transition flex items-center gap-1"
+                                >
+                                    <i class="fa-solid fa-file-arrow-up text-[10px]"></i>
+                                    Import .md File
+                                </button>
+                                <input
+                                    type="file"
+                                    id="skillMdFileInput"
+                                    accept=".md,.txt"
+                                    multiple
+                                    onchange="handleSkillMdUpload(event)"
+                                    class="hidden"
+                                />
+                            </div>
+
+                            <div class="p-3 bg-slate-100 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2.5">
+                                <span class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-plus text-sky-500 text-xs"></i>
+                                    Add New Skill
+                                </span>
+                                <div>
+                                    <label class="block text-[10px] text-slate-400 mb-0.5">Skill Title</label>
+                                    <input
+                                        id="newSkillTitle"
+                                        type="text"
+                                        placeholder="e.g. title placement"
+                                        class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:border-sky-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-400 mb-0.5">Markdown Content</label>
+                                    <div
+                                        id="skillPromptMarkdownBar"
+                                        class="flex items-center gap-1 overflow-x-auto p-1.5 bg-slate-100 dark:bg-slate-800/95 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 select-none mb-2"
+                                    ></div>
+                                    <div
+                                        id="newSkillContent"
+                                        contenteditable="true"
+                                        onkeydown="MarkdownEditor.handleKeyDown(event)"
+                                        placeholder="You are a helpful assistant..."
+                                        class="markdown-body w-full p-3 min-h-[160px] max-h-60 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:border-sky-500 leading-relaxed text-xs text-slate-800 dark:text-slate-100"
+                                    ></div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onclick="addNewSkillFromSettings()"
+                                    class="w-full py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1 shadow-sm"
+                                >
+                                    <i class="fa-solid fa-plus text-xs"></i> Add Skill
+                                </button>
+                            </div>
+
+                            <div id="skillsContainer" class="space-y-3 max-h-[250px] overflow-y-auto pr-1"></div>
                         </div>
 
                         <div
@@ -998,6 +1129,44 @@
                         class="px-4 py-2 rounded-xl text-xs font-medium bg-sky-500 hover:bg-sky-600 text-white shadow-sm transition"
                     >
                         Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div
+            id="skillPickerModal"
+            class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+        >
+            <div
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
+            >
+                <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-slate-800">
+                    <h3 class="font-bold text-sm sm:text-base flex items-center gap-2 text-slate-800 dark:text-slate-100">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> Choose Skills
+                    </h3>
+                    <button
+                        onclick="toggleModal('skillPickerModal')"
+                        class="text-slate-400 hover:text-slate-200 p-1 rounded-lg transition"
+                        title="Close"
+                    >
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+                <div class="p-4 flex-1 overflow-y-auto space-y-2" id="skillPickerList"></div>
+                <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
+                    <button
+                        type="button"
+                        onclick="toggleModal('skillPickerModal')"
+                        class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        onclick="confirmSelectedSkills()"
+                        class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-sky-500 hover:bg-sky-600 text-white shadow-sm transition"
+                    >
+                        Attach Selected Skills
                     </button>
                 </div>
             </div>

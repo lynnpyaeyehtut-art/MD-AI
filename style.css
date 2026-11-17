@@ -7,7 +7,9 @@
     border-radius: 9999px;
 }
 #userInput[contenteditable="true"]:empty:before,
-#systemPromptInput[contenteditable="true"]:empty:before {
+#systemPromptInput[contenteditable="true"]:empty:before,
+#newSkillContent[contenteditable="true"]:empty:before,
+.persona-prompt-editor[contenteditable="true"]:empty:before {
     content: attr(placeholder);
     color: #94a3b8;
     pointer-events: none;
@@ -26,7 +28,9 @@
 }
 .markdown-body h1,
 #userInput h1,
-#systemPromptInput h1 {
+#systemPromptInput h1,
+#newSkillContent h1,
+.persona-prompt-editor h1 {
     font-size: 1.5rem !important;
     font-weight: 800 !important;
     margin: 0.6rem 0 0.3rem 0;
@@ -35,7 +39,9 @@
 }
 .markdown-body h2,
 #userInput h2,
-#systemPromptInput h2 {
+#systemPromptInput h2,
+#newSkillContent h2,
+.persona-prompt-editor h2 {
     font-size: 1.25rem !important;
     font-weight: 700 !important;
     margin: 0.5rem 0 0.25rem 0;
@@ -44,7 +50,9 @@
 }
 .markdown-body h3,
 #userInput h3,
-#systemPromptInput h3 {
+#systemPromptInput h3,
+#newSkillContent h3,
+.persona-prompt-editor h3 {
     font-size: 1.1rem !important;
     font-weight: 700 !important;
     margin: 0.4rem 0 0.2rem 0;
@@ -52,7 +60,9 @@
 }
 .markdown-body h4,
 #userInput h4,
-#systemPromptInput h4 {
+#systemPromptInput h4,
+#newSkillContent h4,
+.persona-prompt-editor h4 {
     font-size: 1rem !important;
     font-weight: 600 !important;
     margin: 0.35rem 0 0.15rem 0;
@@ -62,7 +72,9 @@
 /* Fix bullet points and ordered lists so Tailwind resets don't hide them */
 .markdown-body ul,
 #userInput ul,
-#systemPromptInput ul {
+#systemPromptInput ul,
+#newSkillContent ul,
+.persona-prompt-editor ul {
     list-style-type: disc !important;
     list-style-position: inside !important;
     padding-left: 1.25rem !important;
@@ -71,19 +83,23 @@
 }
 .markdown-body ul ul,
 #userInput ul ul,
-#systemPromptInput ul ul {
+#systemPromptInput ul ul,
+#newSkillContent ul ul {
     list-style-type: circle !important;
     padding-left: 1.25rem !important;
 }
 .markdown-body ul ul ul,
 #userInput ul ul ul,
-#systemPromptInput ul ul ul {
+#systemPromptInput ul ul ul,
+#newSkillContent ul ul ul {
     list-style-type: square !important;
     padding-left: 1.25rem !important;
 }
 .markdown-body ol,
 #userInput ol,
-#systemPromptInput ol {
+#systemPromptInput ol,
+#newSkillContent ol,
+.persona-prompt-editor ol {
     list-style-type: decimal !important;
     list-style-position: inside !important;
     padding-left: 1.25rem !important;
@@ -92,9 +108,63 @@
 }
 .markdown-body li,
 #userInput li,
-#systemPromptInput li {
+#systemPromptInput li,
+#newSkillContent li,
+.persona-prompt-editor li {
     display: list-item !important;
     margin-bottom: 0.2rem;
+}
+
+/* Checklist items: checkbox only, no bullet */
+.markdown-body ul.task-list,
+.markdown-body ol.task-list,
+#userInput ul.task-list,
+#userInput ol.task-list,
+#systemPromptInput ul.task-list,
+#systemPromptInput ol.task-list,
+#newSkillContent ul.task-list,
+#newSkillContent ol.task-list,
+.markdown-body ul:has(> li > input[type="checkbox"]),
+.markdown-body ol:has(> li > input[type="checkbox"]),
+#userInput ul:has(> li > input[type="checkbox"]),
+#userInput ol:has(> li > input[type="checkbox"]),
+#systemPromptInput ul:has(> li > input[type="checkbox"]),
+#systemPromptInput ol:has(> li > input[type="checkbox"]),
+#newSkillContent ul:has(> li > input[type="checkbox"]),
+#newSkillContent ol:has(> li > input[type="checkbox"]) {
+    list-style-type: none !important;
+    list-style-position: inside !important;
+    padding-left: 1.25rem !important;
+}
+.markdown-body li.task-list-item,
+#userInput li.task-list-item,
+#systemPromptInput li.task-list-item,
+#newSkillContent li.task-list-item,
+.markdown-body li:has(> input[type="checkbox"]),
+#userInput li:has(> input[type="checkbox"]),
+#systemPromptInput li:has(> input[type="checkbox"]),
+#newSkillContent li:has(> input[type="checkbox"]) {
+    list-style-type: none !important;
+    list-style-image: none !important;
+    padding-left: 0 !important;
+}
+.markdown-body li.task-list-item > input[type="checkbox"],
+#userInput li.task-list-item > input[type="checkbox"],
+#systemPromptInput li.task-list-item > input[type="checkbox"],
+#newSkillContent li.task-list-item > input[type="checkbox"],
+.markdown-body li > input[type="checkbox"],
+#userInput li > input[type="checkbox"],
+#systemPromptInput li > input[type="checkbox"],
+#newSkillContent li > input[type="checkbox"] {
+    margin: 0 0.4rem 0 0;
+    vertical-align: middle;
+    cursor: pointer;
+    accent-color: #0ea5e9;
+}
+.markdown-body :not(#userInput):not(#systemPromptInput):not(#newSkillContent):not(.persona-prompt-editor) input[type="checkbox"] {
+    pointer-events: none;
+    cursor: default;
+    accent-color: #0ea5e9;
 }
 
 .markdown-body code:not(pre code) {
@@ -109,12 +179,88 @@
     overflow: hidden;
     margin: 0.5rem 0;
     border: 1px solid rgba(156, 163, 175, 0.2);
-    background-color: #1e293b;
-    color: #f8fafc;
+    background-color: #ffffff;
+    color: #1e293b;
     padding: 0.75rem;
     font-family: monospace;
     white-space: pre-wrap;
     word-break: break-all;
+}
+
+.dark .markdown-body pre,
+[data-theme="dark"] .markdown-body pre,
+html.dark .markdown-body pre {
+    background-color: #1e293b;
+    color: #f8fafc;
+}
+
+.code-block-wrapper {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+}
+
+/* Ensure code block header, copy, and expand/collapse buttons are always visible and styled */
+.code-block-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0.375rem 0.75rem !important;
+    font-size: 0.75rem !important;
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    user-select: none !important;
+}
+.dark .code-block-header,
+[data-theme="dark"] .code-block-header,
+html.dark .code-block-header {
+    background-color: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-bottom-color: #334155 !important;
+}
+.code-block-header button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.25rem !important;
+    border-radius: 0.375rem !important;
+    color: inherit !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+.code-block-header button:hover {
+    background-color: rgba(156, 163, 175, 0.2) !important;
+    color: #0f172a !important;
+}
+.dark .code-block-header button:hover,
+[data-theme="dark"] .code-block-header button:hover,
+html.dark .code-block-header button:hover {
+    color: #ffffff !important;
+}
+.code-block-header svg {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    stroke: currentColor !important;
+    fill: none !important;
+}
+
+.dark .code-block-wrapper,
+[data-theme="dark"] .code-block-wrapper,
+html.dark .code-block-wrapper {
+    background-color: #0f172a;
+    border-color: #334155;
+}
+
+.markdown-body pre code.hljs,
+.code-block-wrapper pre code.hljs,
+.hljs {
+    background: transparent !important;
 }
 .markdown-body blockquote {
     border-left: 3px solid #0284c7;
@@ -124,16 +270,23 @@
 }
 .markdown-body table {
     width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     margin-bottom: 0.5rem;
     font-size: 0.85rem;
     border: 1px solid rgba(156, 163, 175, 0.4);
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 .markdown-body th,
 .markdown-body td {
     border: 1px solid rgba(156, 163, 175, 0.3);
     padding: 0.4rem 0.6rem;
     text-align: left;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 .markdown-body th {
     background: rgba(156, 163, 175, 0.2);
@@ -197,72 +350,7 @@ details.reasoning-block[open] summary {
     padding-bottom: 0.25rem;
 }
 
-/* Base <file> tag styling */
-file {
-    display: inline-flex !important;
-    align-items: center;
-    position: relative;
-    font-size: 0 !important; /* Hide raw child text nodes to avoid duplicate rendering */
-    color: transparent !important;
-    line-height: 0 !important;
-    margin: 2px 4px;
-    vertical-align: middle;
-    user-select: none;
-}
 
-/* Render pill button content */
-file::before {
-    /* Fall back to 'file' if title attribute is missing or empty */
-    content: "📄 " attr(title);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.75rem !important;
-    font-weight: 500;
-    line-height: 1.2;
-    color: #334155;
-    background-color: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    border-radius: 9999px;
-    cursor: pointer;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    transition: all 0.15s ease-in-out;
-}
-
-/* Hover effects for file pills */
-file:hover::before {
-    background-color: #e2e8f0;
-    border-color: #94a3b8;
-    color: #0f172a;
-}
-
-/* Fallback if title attribute is empty */
-file[title=""]::before,
-file:not([title])::before {
-    content: "📄 file";
-}
-
-/* Dark mode support */
-.dark file::before,
-[data-theme="dark"] file::before {
-    color: #cbd5e1;
-    background-color: #1e293b;
-    border-color: #334155;
-}
-
-.dark file:hover::before,
-[data-theme="dark"] file:hover::before {
-    background-color: #334155;
-    border-color: #475569;
-    color: #f8fafc;
-}
-
-/* Prevent broken inline images inside file pills from breaking layout */
-file img {
-    display: none !important;
-}
 /* Theme Styles */
 html.theme-max body {
     background-color: #ffffff !important;
@@ -340,4 +428,70 @@ html.theme-pro.dark #modelDropdown,
 html.theme-pro.dark #settingsModal > div {
     background-color: #0b1329 !important;
     border-color: #1e3a8a !important;
+}
+
+/* Vintage Theme - Aged Paper & Pencil/Ink */
+html.theme-vintage body {
+    background-color: #f7f3e8 !important;
+    color: #2b2621 !important;
+}
+
+html.theme-vintage header,
+html.theme-vintage aside,
+html.theme-vintage footer,
+html.theme-vintage div[class*="bg-white"],
+html.theme-vintage div[class*="bg-slate-50"],
+html.theme-vintage div[class*="bg-slate-100"],
+html.theme-vintage #settingsModal > div,
+html.theme-vintage #modelDropdown,
+html.theme-vintage #titleModelDropdown {
+    background-color: #f5f0e3 !important;
+    border-color: #e2d7be !important;
+    color: #2b2621 !important;
+}
+
+html.theme-vintage.dark body {
+    background-color: #1c1a18 !important;
+    color: #e8e2d0 !important;
+}
+
+html.theme-vintage.dark header,
+html.theme-vintage.dark aside,
+html.theme-vintage.dark footer,
+html.theme-vintage.dark div[class*="bg-slate-900"],
+html.theme-vintage.dark div[class*="bg-slate-800"],
+html.theme-vintage.dark div[class*="bg-slate-950"],
+html.theme-vintage.dark div[class*="bg-white"],
+html.theme-vintage.dark div[class*="bg-slate-50"],
+html.theme-vintage.dark div[class*="bg-slate-100"],
+html.theme-vintage.dark #modelDropdown,
+html.theme-vintage.dark #titleModelDropdown,
+html.theme-vintage.dark #settingsModal > div {
+    background-color: #262320 !important;
+    border-color: #3d3732 !important;
+    color: #e8e2d0 !important;
+}
+
+html.theme-vintage.dark input,
+html.theme-vintage.dark textarea,
+html.theme-vintage.dark select {
+    color: #e8e2d0 !important;
+    background-color: #201d1a !important;
+    border-color: #3d3732 !important;
+}
+
+html.theme-vintage input,
+html.theme-vintage textarea,
+html.theme-vintage select {
+    color: #2b2621 !important;
+    background-color: #faf5eb !important;
+    border-color: #e2d7be !important;
+}
+
+/* Canvas Modal Styles */
+#canvasModal .fa-trash-can {
+    color: #ef4444;
+}
+#canvasModal .fa-trash-can:hover {
+    color: #dc2626;
 }
